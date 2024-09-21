@@ -1009,25 +1009,40 @@ export const adminMenu = {
 
 	projects: {
 		id: 'projects',
-		text: 'Projects',
+		text: 'Data RAB & RAP',
 		path: '/admin',
 		icon: 'Dashboard',
 		subMenu : {
-			lahan: {
-				id: 'lahan',
-				text: 'Data Lahan',
-				path: '/admin/lahan',
-				icon: 'Dashboard',
-				subMenu: null,
-			},
+			
 			rab: {
 				id: 'rab',
-				text: 'Data RAB & RAP',
+				text: 'RAB',
 				path: '/admin/rab',
 				icon: 'AutoStories',
 				subMenu: null,
 			},
+			rabItem: {
+				id: 'rab-item',
+				text: 'RAB Item',
+				path: '/admin/rab/rab-item',
+				icon: 'AutoStories',
+				subMenu: null,
+			},
+			rabUnit: {
+				id: 'rab-unit',
+				text: 'RAB Unit',
+				path: '/admin/rab/rab-unit',
+				icon: 'AutoStories',
+				subMenu: null,
+			},
 		}
+	},
+	lahan: {
+		id: 'lahan',
+		text: 'Data Lahan',
+		path: '/admin/lahan',
+		icon: 'Dashboard',
+		subMenu: null,
 	},
 	marketing: {
 		id: 'marketing',

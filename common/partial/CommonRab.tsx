@@ -60,7 +60,7 @@ const CommonRab: FC<IDataLahanProps> = ({ isFluid }) => {
 	const [catatTipe, setCatatTipe] = useState('');
 
 	// handle option catatan
-	const handleCatatOption = () => {};
+	const handleCatatOption = () => { };
 
 	// BEGIN :: Upcoming Events
 	const [upcomingEventsInfoOffcanvas, setUpcomingEventsInfoOffcanvas] = useState(false);
@@ -131,9 +131,9 @@ const CommonRab: FC<IDataLahanProps> = ({ isFluid }) => {
 						<thead>
 							<tr>
 								<th>No</th>
-								<th>Judul</th>
-								<th>Type</th>
-								<th
+								<th className='text-center'>Nama</th>
+								{/* <th className='text-nowrap'>Detail RAB</th> */}
+								{/* <th
 									onClick={() => requestSort('date')}
 									className='cursor-pointer text-decoration-underline'>
 									Tanggal{' '}
@@ -142,9 +142,7 @@ const CommonRab: FC<IDataLahanProps> = ({ isFluid }) => {
 										className={getClassNamesFor('date')}
 										icon='FilterList'
 									/>
-								</th>
-								<th>Total RAP</th>
-								<th>Total RAB</th>
+								</th> */}
 								{/* <th>Status</th> */}
 								<td style={{ width: 60 }} />
 
@@ -159,13 +157,6 @@ const CommonRab: FC<IDataLahanProps> = ({ isFluid }) => {
 										<div className='d-flex'>
 											<div className='flex-grow-1 ms-3 d-flex align-items-center text-nowrap'>
 												RAB 01 Lorem ipsum dolor sit amet consectetur
-											</div>
-										</div>
-									</td>
-									<td>
-										<div className='d-flex'>
-											<div className='flex-grow-1 ms-3 d-flex align-items-center '>
-												Kavling
 											</div>
 										</div>
 									</td>
@@ -185,23 +176,35 @@ const CommonRab: FC<IDataLahanProps> = ({ isFluid }) => {
 												</span>
 											</span> */}
 											<span className='text-nowrap'>
-												{dayjs(`${item.date} ${item.time}`).format(
+												{/* {dayjs(`${item.date} ${item.time}`).format(
 													'D-MMMM-YYYY',
-												)}
+												)} */}
 											</span>
 										</div>
 									</td>
 
-									<td>
-										<div className='text-nowrap'>200.000.000</div>
-									</td>
 
 									<td>
-										<div className='text-nowrap'>200.000.000</div>
-									</td>
 
-									<td>
+
 										<div className='d-flex flew-row'>
+
+											<Button
+												isOutline={!darkModeStatus}
+												color='dark'
+												isLight={darkModeStatus}
+												className={classNames(
+													'text-nowrap',
+													{
+														'border-light': !darkModeStatus,
+													},
+													'mx-3',
+												)}
+												icon='Info'
+												onClick={handleEditRab}>
+												Detail
+											</Button>
+
 											<Button
 												isOutline={!darkModeStatus}
 												color='dark'
@@ -310,7 +313,7 @@ const CommonRab: FC<IDataLahanProps> = ({ isFluid }) => {
 												// @ts-ignore
 												thousandSeparator
 												onChange={formik.handleChange}
-												// value={formik.values.examplePrice}
+											// value={formik.values.examplePrice}
 											/>
 											<InputGroupText>%</InputGroupText>
 										</InputGroup>
@@ -463,7 +466,7 @@ const CommonRab: FC<IDataLahanProps> = ({ isFluid }) => {
 												// @ts-ignore
 												thousandSeparator
 												onChange={formik.handleChange}
-												// value={formik.values.examplePrice}
+											// value={formik.values.examplePrice}
 											/>
 											<InputGroupText>%</InputGroupText>
 										</InputGroup>

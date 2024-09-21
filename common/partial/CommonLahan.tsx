@@ -312,7 +312,7 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 														Edit
 													</Button>
 
-													<Button
+													{/* <Button
 														isOutline={!darkModeStatus}
 														color='danger'
 														isLight={darkModeStatus}
@@ -322,7 +322,7 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 														icon='Delete'
 														onClick={handleModalHapus}>
 														Hapus
-													</Button>
+													</Button> */}
 												</div>
 											</td>
 										</tr>

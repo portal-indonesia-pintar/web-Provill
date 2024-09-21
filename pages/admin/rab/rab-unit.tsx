@@ -11,32 +11,32 @@ import SubHeader, { SubHeaderLeft, SubHeaderRight } from '@call-layout/SubHeader
 import Icon from '@call-components/icon/Icon';
 import Button from '@call-components/bootstrap/Button';
 import Page from '@call-layout/Page/Page';
-import CommonLahan from '@call-common/partial/CommonLahan';
+import CommonRabUnit from '@call-common/partial/CommonRabUnit';
 
-const Index: NextPage = () => {
-	const { themeStatus } = useDarkMode();
-	return (
-		<PageWrapper>
-			<Head>
-				<title>{adminMenu.lahan.text ?? '-'}</title>
-			</Head>
-		
-			<Page container='fluid'>
-				<div className='row h-100'>
-					<div className='col-12'>
-						<CommonLahan isFluid />
-					</div>
-				</div>
-			</Page>
-		</PageWrapper>
-	);
+const RabUnit: NextPage = () => {
+    const { themeStatus } = useDarkMode();
+    return (
+        <PageWrapper>
+            <Head>
+                <title>{adminMenu.projects.subMenu.rabUnit.text}</title>
+            </Head>
+           
+            <Page container='fluid'>
+                <div className='row h-100'>
+                    <div className='col-12'>
+                        <CommonRabUnit isFluid />
+                    </div>
+                </div>
+            </Page>
+        </PageWrapper>
+    );
 };
 
 export const getStaticProps: GetStaticProps = async ({ locale }) => ({
-	props: {
-		// @ts-ignore
-		...(await serverSideTranslations(locale, ['common', 'menu'])),
-	},
+    props: {
+        // @ts-ignore
+        ...(await serverSideTranslations(locale, ['common', 'menu'])),
+    },
 });
 
-export default Index;
+export default RabUnit;

@@ -10,8 +10,8 @@ export const middleware = async (req: NextRequest) => {
 	// 	return NextResponse.rewrite(new URL(demoPagesMenu.login.path, req.url));
 	// }
 
-	// if (token?.value) {
 	if (token?.value) {
+	// if (true) {
 		return NextResponse.next();
 	}
 	return NextResponse.redirect(new URL(`/${demoPagesMenu.login.path}`, req.url));

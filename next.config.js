@@ -25,7 +25,7 @@ const nextConfig = withInterceptStdout(
             return [
                 {
                     source: '/:path*',
-                    destination: 'https://api.provill.id/:path*', // Proxy to Backend
+                    destination: 'https://api.provill.id/:path*', 
                 },
             ];
         },
