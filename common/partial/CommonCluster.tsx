@@ -77,11 +77,6 @@ const CommonCluster: FC<IDataLahanProps> = ({ isFluid }) => {
 	const [state, setState] = useState(false);
 	const [showTipeBayar, setShowTipeBayar] = useState(false);
 
-	// state value form
-	const [catatTipe, setCatatTipe] = useState('');
-
-	// handle option catatan
-	const handleCatatOption = () => { };
 
 	// BEGIN :: Upcoming Events
 	const [editClusterModal, setEditClusterModal] = useState(false);
@@ -95,9 +90,6 @@ const CommonCluster: FC<IDataLahanProps> = ({ isFluid }) => {
 	};
 
 	const [addClusterModal, setAddClusterModal] = useState(false);
-	const handleChangeCatatan = (e) => {
-		setVcatatan(e.target.value);
-	};
 	// END :: Upcoming Events
 
 	const createCluster = useFormik({

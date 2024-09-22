@@ -18,11 +18,7 @@ import Dropdown, {
 	DropdownToggle,
 } from '../../components/bootstrap/Dropdown';
 import Icon from '../../components/icon/Icon';
-import OffCanvas, {
-	OffCanvasBody,
-	OffCanvasHeader,
-	OffCanvasTitle,
-} from '../../components/bootstrap/OffCanvas';
+
 import Modal, {
 	ModalBody,
 	ModalFooter,
@@ -86,10 +82,6 @@ const CommonKavling: FC<IDataLahanProps> = ({ isFluid }) => {
 	};
 
 	const [addKavlingModal, setAddKavlingModal] = useState(false);
-	const handleChangeCatatan = (e) => {
-		setVcatatan(e.target.value);
-	};
-	// END :: Upcoming Events
 
 	const formik = useFormik({
 		onSubmit<Values>(

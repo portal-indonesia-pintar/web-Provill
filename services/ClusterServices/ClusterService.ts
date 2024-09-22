@@ -1,6 +1,9 @@
 
 import axiosBase from "../axiosBase";
 
+type form = {
+	[key: string] : string;
+}
 
 // get cluster
 export const ClusterGet = async () => {
@@ -21,7 +24,7 @@ export const ClusterGet = async () => {
 
 
 // store cluster
-export const ClusterStore = async (formData: FormData) => {
+export const ClusterStore = async (formData: form) => {
 
     // console.log(formData);
     const fields = {

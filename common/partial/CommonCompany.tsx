@@ -42,7 +42,7 @@ interface IAlertProsesProps {
 }
 
 const AlertProses = ({ status }: IAlertProsesProps) => {
-	const alertOptions = {
+	const alertOptions: any = {
 		icon: 'success',
 		title: `Berhasil ${status}`,
 		message: `Data Company telah di ${status === 'add' ? 'Tambah' : (status === 'update') ? 'Update' : (status === 'hapus') ? 'Hapus' : ''}`,

@@ -56,7 +56,7 @@ interface IAlertRegisterProps {
 }
 
 const AlertRegister = ({ isRegister, email }: IAlertRegisterProps) => {
-	const alertOptions = {
+	const alertOptions: any = {
 		icon: isRegister ? 'success' : 'error',
 		title: isRegister ? 'Sukses Registrasi' : 'Gagal Registrasi',
 		message: isRegister ? `Silahkan login menggunakan akun anda : ${email}` : 'Email sudah terdaftar',
@@ -78,7 +78,7 @@ interface IAlertLoginProps {
 }
 
 const AlertLogin = ({ isRegister, name }: IAlertLoginProps) => {
-	const alertOptions = {
+	const alertOptions: any = {
 		icon: isRegister ? 'success' : 'error',
 		title: isRegister ? 'Sukses Login' : 'Gagal Login',
 		message: isRegister ? `Selamat datang, ${name}` : 'Periksa kembali email dan password anda',
@@ -159,7 +159,7 @@ const Login: NextPage<ILoginProps> = ({ isSignUp }) => {
 					Cookies.set('token', token)
 					AlertLogin({ isRegister: true, name: values.loginUsername });
 					router.push('/')
-				} catch (error) {	
+				} catch (error) {
 					console.log(error);
 				}
 				setIsLoading(false)

@@ -19,8 +19,12 @@ export const CompanyGet = async () => {
 }
 
 
+interface formProps {
+	name: string;
+	address: string;
+}
 // store land
-export const CompanyStore = async (formData: FormData) => {
+export const CompanyStore = async (formData: formProps) => {
 
 	// console.log(formData);
 	const fields = {

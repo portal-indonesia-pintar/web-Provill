@@ -37,8 +37,14 @@ interface IAlertProsesProps {
 	status?: string;
 }
 
+interface alertProps {
+	icon: string | undefined;
+	title: string;
+	message: string;
+}
+
 const AlertProses = ({ status }: IAlertProsesProps) => {
-	const alertOptions = {
+	const alertOptions: any = {
 		icon: 'success',
 		title: `Berhasil ${status}`,
 		message: `Data lahan telah di ${status === 'add' ? 'Tambah' : (status === 'update') ? 'Update' : (status === 'hapus') ? 'Hapus' : ''}`,
@@ -79,7 +85,7 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 
 	// BEGIN :: Upcoming Events
 	const [editModalLahan, setEditModalLahan] = useState(false);
-	const handleEditLahan = async (uuid : string) => {
+	const handleEditLahan = async (uuid: string) => {
 		// console.log(uuid);
 		const res = await LahanShow(uuid)
 		console.log(res);
@@ -121,8 +127,8 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 				land_owner?: string;
 				acquisition_date?: string;
 				land_owner_phone?: string;
-				area_size?: number,
-				price_per_m2?: number,
+				area_size?: string | number,
+				price_per_m2?: string | number,
 				note?: string,
 			} = {};
 
@@ -450,7 +456,7 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 
 												value={formikAdd.values.land_owner_phone.replace(/_/g, '').replace(/-/g, '')}
 												isTouched={formikAdd.touched.land_owner_phone}
-												onChange={(e) => {
+												onChange={(e: any) => {
 													const value = e.target.value.replace(/_/g, '').replace(/-/g, '');
 													console.log(value);
 													formikAdd.setFieldValue('land_owner_phone', value)

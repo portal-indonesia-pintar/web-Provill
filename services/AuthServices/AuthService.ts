@@ -1,14 +1,18 @@
 import axiosBase from '../axiosBase';
 import { create } from 'zustand';
 
-// interface RegisterDataProps {
-//     name?: string;
-//     email?: string;
-//     password?: string;
-//     phone_number?: string;
-// }
+interface RegisterDataProps {
+	name?: string;
+	email: string;
+	password: string;
+	phone_number?: string;
+}
 
-export const RegisterStore = async (formData: FormData) => {
+type form = {
+	[key: string] : string;
+}
+
+export const RegisterStore = async (formData: form) => {
 	const fields = {
 		name: formData.valueName,
 		email: formData.valueEmail,
@@ -19,7 +23,7 @@ export const RegisterStore = async (formData: FormData) => {
 	try {
 		const response = await axiosBase.post('/auth/register', fields)
 		return response
-	} catch (error) {
+	} catch (error: any) {
 		if (error.response) {
 			console.log('Error Response:', error.response.data);
 		} else if (error.request) {
@@ -31,7 +35,7 @@ export const RegisterStore = async (formData: FormData) => {
 	}
 };
 
-export const LoginAuth = async (formData: FormData) => {
+export const LoginAuth = async (formData: form) => {
 	const fields = {
 		email: formData.loginUsername,
 		password: formData.loginPassword,
@@ -40,7 +44,7 @@ export const LoginAuth = async (formData: FormData) => {
 	try {
 		const response = await axiosBase.post('/auth/login', fields)
 		return response
-	} catch (error) {
+	} catch (error: any) {
 		if (error.response) {
 			console.log('Error Response:', error.response.data);
 		} else if (error.request) {
@@ -52,12 +56,12 @@ export const LoginAuth = async (formData: FormData) => {
 	}
 };
 
-export const LogoutUser = async (data: string) => {
+export const LogoutUser = async (data: string | null) => {
 	console.log('logout : ', data);
 	try {
 		const response = await axiosBase.get(`/auth/logout?session_id=${data}`)
 		return response
-	} catch (error) {
+	} catch (error: any) {
 		if (error.response) {
 			console.log('Error Response:', error.response.data);
 		} else if (error.request) {
