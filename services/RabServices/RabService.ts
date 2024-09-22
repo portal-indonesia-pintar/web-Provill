@@ -19,10 +19,10 @@ export const RabGet = async () => {
     }
 }
 
-export const RabItemGet = async () => {
+export const GetItem = async () => {
     try {
         const response = await axiosBase.get('/rab-item')
-		return response.data
+		return response
     } catch (error : any) {
         if (error.response) {
 			console.log('Error Response:', error.response.data);
@@ -31,11 +31,11 @@ export const RabItemGet = async () => {
 		} else {
 			console.log('Error:', error.message);
 		}
-		return error
+		return error.response
     }
 }
 
-export const RabUnitGet = async () => {
+export const GetUnit = async () => {
     try {
         const response = await axiosBase.get('/rab-unit')
 		return response.data

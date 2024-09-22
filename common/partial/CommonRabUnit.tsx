@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
 import { FormikHelpers, useFormik } from 'formik';
@@ -33,6 +33,7 @@ import useDarkMode from '../../hooks/useDarkMode';
 import Select from '@call-components/bootstrap/forms/Select';
 import InputGroup, { InputGroupText } from '@call-components/bootstrap/forms/InputGroup';
 import CommonItem from '@call-common/partial/item/CommonItem';
+import { GetUnit } from '@call-root-lib/services/RabServices/RabService';
 
 interface IDataLahanProps {
     isFluid?: boolean;
@@ -91,9 +92,35 @@ const CommonRabUnit: FC<IDataLahanProps> = ({ isFluid }) => {
         },
     });
 
+    const [dataChange, setDataChange] = useState(false)
+    const [dataUnit, setDataUnit] = useState<any>([])
     const [currentPage, setCurrentPage] = useState(1);
     const [perPage, setPerPage] = useState(PER_COUNT['5']);
-    const { items, requestSort, getClassNamesFor } = useSortableData(data);
+    const { items, requestSort, getClassNamesFor } = useSortableData(dataUnit);
+
+    const getUnit = async () => {
+        try {
+            setState(false)
+            const res = await GetUnit();
+            console.log(res);
+            if (res.status === 200) {
+                const response = res.data
+                setDataUnit(response.data)
+                setDataChange(!dataChange)
+            }
+            else {
+                setDataUnit([])
+            }
+            setState(true)
+        } catch (error) {
+            console.log(error)
+            setState(false)
+        }
+    }
+
+    useEffect(() => {
+        getUnit()
+    }, [dataChange])
 
     return (
         <>

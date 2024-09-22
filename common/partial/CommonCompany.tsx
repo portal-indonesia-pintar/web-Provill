@@ -141,7 +141,7 @@ const CommonCompany: FC<IDataCompanyProps> = ({ isFluid }) => {
 
 	// get data Company
 	const [dataCompany, setDataCompany] = useState<any>([])
-	console.log(dataCompany);
+	console.log('data : ', dataCompany);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [perPage, setPerPage] = useState(PER_COUNT['5']);
 	const { items, requestSort, getClassNamesFor } = useSortableData(dataCompany);
@@ -150,7 +150,14 @@ const CommonCompany: FC<IDataCompanyProps> = ({ isFluid }) => {
 		try {
 			setState(false)
 			const res = await CompanyGet();
-			setDataCompany(res.data)
+			console.log(res);
+			if (res.status === 200) {
+				const response = res.data
+				setDataCompany(response.data)
+			}
+			else {
+				setDataCompany([])
+			}
 			setState(true)
 		} catch (error) {
 			console.log(error)
@@ -164,13 +171,12 @@ const CommonCompany: FC<IDataCompanyProps> = ({ isFluid }) => {
 	const handleModalHapus = (id: string) => {
 		setGetId(id)
 		setModalHapusCompany(!modalHapusCompany);
-
 	};
+
 	const handleDeleteCompnay = async (id: string) => {
-		console.log('id company :', id);
 		const isDelete = await CompanyDelete(id);
-		console.log(isDelete.code);
-		if (isDelete.code === '200') {
+		console.log(isDelete);
+		if (isDelete.status === 200) {
 			AlertProses({ status: 'hapus' })
 			setDataChange(!dataChange)
 			setModalHapusCompany(false)
@@ -220,73 +226,79 @@ const CommonCompany: FC<IDataCompanyProps> = ({ isFluid }) => {
 									</tr>
 								</thead>
 								<tbody>
-									{dataPagination(items, currentPage, perPage).map((item, index) => (
-										<tr key={index}>
-											<td>{++index}</td>
-											<td>
-												{item.name}
-											</td>
-											<td className='text-nowrap'>{item.address}</td>
-											{/* <td>
-											<Dropdown>
-												<DropdownToggle hasIcon={false}>
-													<Button
-														isLink
-														color={item.status.color}
-														icon='Circle'
-														className='text-nowrap'>
-														{item.status.name}
-													</Button>
-												</DropdownToggle>
-												<DropdownMenu>
-													{Object.keys(EVENT_STATUS).map((key) => (
-														<DropdownItem key={key}>
-															<div>
-																<Icon
-																	icon='Circle'
-																	color={EVENT_STATUS[key].color}
-																/>
-																{EVENT_STATUS[key].name}
-															</div>
-														</DropdownItem>
-													))}
-												</DropdownMenu>
-											</Dropdown>
-										</td> */}
-											<td>
-												<div className='d-flex flew-row'>
-													<Button
-														isOutline={!darkModeStatus}
-														color='dark'
-														isLight={darkModeStatus}
-														className={classNames(
-															'text-nowrap',
-															{
-																'border-light': !darkModeStatus,
-															},
-															'mx-3',
-														)}
-														icon='Edit'
-														onClick={() => handleEditCompany(item.uuid)}>
-														Edit
-													</Button>
+									{dataCompany.length > 0 ? (
+										dataPagination(items, currentPage, perPage).map((item, index) => (
+											<tr key={index}>
+												<td>{++index}</td>
+												<td>
+													{item.name}
+												</td>
+												<td className='text-nowrap'>{item.address}</td>
+												{/* <td>
+												<Dropdown>
+													<DropdownToggle hasIcon={false}>
+														<Button
+															isLink
+															color={item.status.color}
+															icon='Circle'
+															className='text-nowrap'>
+															{item.status.name}
+														</Button>
+													</DropdownToggle>
+													<DropdownMenu>
+														{Object.keys(EVENT_STATUS).map((key) => (
+															<DropdownItem key={key}>
+																<div>
+																	<Icon
+																		icon='Circle'
+																		color={EVENT_STATUS[key].color}
+																	/>
+																	{EVENT_STATUS[key].name}
+																</div>
+															</DropdownItem>
+														))}
+													</DropdownMenu>
+												</Dropdown>
+											</td> */}
+												<td>
+													<div className='d-flex flew-row'>
+														<Button
+															isOutline={!darkModeStatus}
+															color='dark'
+															isLight={darkModeStatus}
+															className={classNames(
+																'text-nowrap',
+																{
+																	'border-light': !darkModeStatus,
+																},
+																'mx-3',
+															)}
+															icon='Edit'
+															onClick={() => handleEditCompany(item.uuid)}>
+															Edit
+														</Button>
 
-													<Button
-														key={item.id}
-														isOutline={!darkModeStatus}
-														color='danger'
-														isLight={darkModeStatus}
-														className={classNames('text-nowrap', {
-															'border-light': !darkModeStatus,
-														})}
-														icon='Delete'
-														onClick={() => handleModalHapus(item.uuid)}>
-														Hapus
-													</Button>
-												</div>
-											</td>
-										</tr>
-									))}
+														<Button
+															key={item.id}
+															isOutline={!darkModeStatus}
+															color='danger'
+															isLight={darkModeStatus}
+															className={classNames('text-nowrap', {
+																'border-light': !darkModeStatus,
+															})}
+															icon='Delete'
+															onClick={() => handleModalHapus(item.uuid)}>
+															Hapus
+														</Button>
+													</div>
+												</td>
+											</tr>
+										))
+									) : (
+										<td colSpan={5} >
+											<h6 className='text-center text-nowrap mt-2'>Tidak ada data</h6>
+										</td>
+									)}
 								</tbody>
 							</table>
 						</CardBody>

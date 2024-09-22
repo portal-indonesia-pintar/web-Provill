@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
 import { FormikHelpers, useFormik } from 'formik';
@@ -33,6 +33,7 @@ import useDarkMode from '../../hooks/useDarkMode';
 import Select from '@call-components/bootstrap/forms/Select';
 import InputGroup, { InputGroupText } from '@call-components/bootstrap/forms/InputGroup';
 import CommonItem from '@call-common/partial/item/CommonItem';
+import { GetItem } from '@call-root-lib/services/RabServices/RabService';
 
 interface IDataLahanProps {
     isFluid?: boolean;
@@ -91,9 +92,35 @@ const CommonRabItem: FC<IDataLahanProps> = ({ isFluid }) => {
         },
     });
 
+    const [dataChange, setDataChange] = useState(false)
+    const [dataItem, setDataItem] = useState<any>([])
     const [currentPage, setCurrentPage] = useState(1);
     const [perPage, setPerPage] = useState(PER_COUNT['5']);
-    const { items, requestSort, getClassNamesFor } = useSortableData(data);
+    const { items, requestSort, getClassNamesFor } = useSortableData(dataItem);
+
+    const getItem = async () => {
+        try {
+            setState(false)
+            const res = await GetItem();
+            console.log(res);
+            if (res.status === 200) {
+                const response = res.data
+                setDataItem(response.data)
+                setDataChange(!dataChange)
+            }
+            else {
+                setDataItem([])
+            }
+            setState(true)
+        } catch (error) {
+            console.log(error)
+            setState(false)
+        }
+    }
+
+    useEffect(() => {
+        getItem()
+    }, [dataChange])
 
     return (
         <>
@@ -144,7 +171,7 @@ const CommonRabItem: FC<IDataLahanProps> = ({ isFluid }) => {
                                     <td>
                                         <div className='d-flex'>
                                             <div className='flex-grow-1 ms-3 d-flex align-items-center text-nowrap'>
-                                                RAB Item
+                                                {item.name}
                                             </div>
                                         </div>
                                     </td>

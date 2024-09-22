@@ -5,7 +5,7 @@ import axiosBase from "../axiosBase";
 export const CompanyGet = async () => {
 	try {
 		const response = await axiosBase.get('/company')
-		return response.data
+		return response
 	} catch (error: any) {
 		if (error.response) {
 			console.log('Error Response:', error.response.data);
@@ -14,7 +14,7 @@ export const CompanyGet = async () => {
 		} else {
 			console.log('Error:', error.message);
 		}
-		return error
+		return error.response
 	}
 }
 
@@ -44,7 +44,7 @@ export const CompanyStore = async (formData: formProps) => {
 		} else {
 			console.log('Error:', error.message);
 		}
-		return error
+		return error.response
 	}
 
 }
@@ -54,7 +54,7 @@ export const CompanyShow = async (uuid: string) => {
 	console.log('show uuid data : ', uuid);
 	try {
 		const response = await axiosBase.get('/company/profile')
-		return response.data
+		return response
 	} catch (error: any) {
 		if (error.response) {
 			console.log('Error Response:', error.response.data);
@@ -63,7 +63,7 @@ export const CompanyShow = async (uuid: string) => {
 		} else {
 			console.log('Error:', error.message);
 		}
-		return error
+		return error.response
 	}
 }
 
@@ -71,11 +71,9 @@ export const CompanyShow = async (uuid: string) => {
 
 // delete Company
 export const CompanyDelete = async (uuid: string) => {
-	console.log(uuid);
 	try {
 		const response = await axiosBase.delete(`/company/${uuid}`)
-		console.log(response);
-		return response.data
+		return response
 	} catch (error: any) {
 		if (error.response) {
 			console.log('Error Response:', error.response.data);
@@ -84,7 +82,7 @@ export const CompanyDelete = async (uuid: string) => {
 		} else {
 			console.log('Error:', error.message);
 		}
-		return error
+		return error.response
 	}
 }
 

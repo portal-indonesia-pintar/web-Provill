@@ -88,7 +88,7 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 	const handleEditLahan = async (uuid: string) => {
 		// console.log(uuid);
 		const res = await LahanShow(uuid)
-		console.log(res);
+		console.log(res.data);
 		// setEditModalLahan(!editModalLahan);
 	};
 
@@ -188,7 +188,11 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 		try {
 			setState(false)
 			const res = await LahanGet();
-			setDataLahan(res.data)
+			if (res.status === 200) {
+				const response = res.data
+				setDataLahan(response.data)
+			}
+
 			setState(true)
 		} catch (error) {
 			console.log(error)
@@ -249,90 +253,75 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 									</tr>
 								</thead>
 								<tbody>
-									{dataPagination(items, currentPage, perPage).map((item, index) => (
-										<tr key={index}>
-											<td>{++index}</td>
-											<td>
-												<div className='d-flex align-items-center'>
-													<span className='text-nowrap'>
-														{dayjs(`${item.acquisition_date}`).format(
-															'D-MMMM-YYYY',
-														)}
-													</span>
-												</div>
-											</td>
-											<td>
-												<div className='d-flex'>
-													<div className='flex-grow-1 ms-3 d-flex align-items-center text-nowrap'>
-														{item.land_name}
-													</div>
-												</div>
-											</td>
-											<td>
-												<div>{item.land_owner}</div>
-											</td>
-											<td className='text-nowrap'>{item.area_size} m2</td>
-											<td className='text-nowrap'>{toRupiah(item.price_per_m2)}</td>
-											<td className='text-nowrap'>{item.note}</td>
-											{/* <td>
-											<Dropdown>
-												<DropdownToggle hasIcon={false}>
-													<Button
-														isLink
-														color={item.status.color}
-														icon='Circle'
-														className='text-nowrap'>
-														{item.status.name}
-													</Button>
-												</DropdownToggle>
-												<DropdownMenu>
-													{Object.keys(EVENT_STATUS).map((key) => (
-														<DropdownItem key={key}>
-															<div>
-																<Icon
-																	icon='Circle'
-																	color={EVENT_STATUS[key].color}
-																/>
-																{EVENT_STATUS[key].name}
+									{dataLahan.length > 0 ? (
+										<>
+											{dataPagination(items, currentPage, perPage).map((item, index) => (
+												<tr key={index}>
+													<td>{++index}</td>
+													<td>
+														<div className='d-flex align-items-center'>
+															<span className='text-nowrap'>
+																{dayjs(`${item.acquisition_date}`).format(
+																	'DD-MMMM-YYYY',
+																)}
+															</span>
+														</div>
+													</td>
+													<td>
+														<div className='d-flex'>
+															<div className='flex-grow-1 ms-3 d-flex align-items-center text-nowrap'>
+																{item.land_name}
 															</div>
-														</DropdownItem>
-													))}
-												</DropdownMenu>
-											</Dropdown>
-										</td> */}
-											<td>
-												<div className='d-flex flew-row'>
-													<Button
-														isOutline={!darkModeStatus}
-														color='dark'
-														isLight={darkModeStatus}
-														className={classNames(
-															'text-nowrap',
-															{
-																'border-light': !darkModeStatus,
-															},
-															'mx-3',
-														)}
-														icon='Edit'
-														onClick={() => handleEditLahan(item.uuid)}>
-														Edit
-													</Button>
+														</div>
+													</td>
+													<td>
+														<div>{item.land_owner}</div>
+													</td>
+													<td className='text-nowrap'>{item.area_size} m2</td>
+													<td className='text-nowrap'>{toRupiah(item.price_per_m2)}</td>
+													<td className='text-nowrap'>{item.note}</td>
 
-													{/* <Button
-														isOutline={!darkModeStatus}
-														color='danger'
-														isLight={darkModeStatus}
-														className={classNames('text-nowrap', {
-															'border-light': !darkModeStatus,
-														})}
-														icon='Delete'
-														onClick={handleModalHapus}>
-														Hapus
-													</Button> */}
-												</div>
+													<td>
+														<div className='d-flex flew-row'>
+															<Button
+																isOutline={!darkModeStatus}
+																color='dark'
+																isLight={darkModeStatus}
+																className={classNames(
+																	'text-nowrap',
+																	{
+																		'border-light': !darkModeStatus,
+																	},
+																	'mx-3',
+																)}
+																icon='Edit'
+																onClick={() => handleEditLahan(item.uuid)}>
+																Edit
+															</Button>
+
+															{/* <Button
+															isOutline={!darkModeStatus}
+															color='danger'
+															isLight={darkModeStatus}
+															className={classNames('text-nowrap', {
+																'border-light': !darkModeStatus,
+															})}
+															icon='Delete'
+															onClick={handleModalHapus}>
+															Hapus
+														</Button> */}
+														</div>
+													</td>
+												</tr>
+											))}
+										</>
+
+									) : (
+											<td colSpan={9} >
+												<h6 className='text-center text-nowrap mt-2'>Tidak ada data</h6>
 											</td>
-										</tr>
-									))}
+									)
+									}
 								</tbody>
 							</table>
 						</CardBody>

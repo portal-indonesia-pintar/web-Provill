@@ -5,16 +5,18 @@ import axiosBase from "../axiosBase";
 export const LahanGet = async () => {
     try {
         const response = await axiosBase.get('/land')
-        return response.data
+        // console.log(response);
+        return response
     } catch (error: any) {
         if (error.response) {
+            console.log('Error Response:', error.response.status);
             console.log('Error Response:', error.response.data);
         } else if (error.request) {
             console.log('Error Request:', error.request);
         } else {
             console.log('Error:', error.message);
         }
-        return error
+        return error.response
     }
 }
 
@@ -65,8 +67,8 @@ export const LahanShow = async (uuid: string) => {
     console.log(`/land/${uuid}`);
     try {
         const response = await axiosBase.get(`/land/${uuid}`)
-        console.log(response);
-        return response.data
+        // console.log(response);
+        return response
     } catch (error: any) {
         if (error.response) {
             console.log('Error Response:', error.response.data);
