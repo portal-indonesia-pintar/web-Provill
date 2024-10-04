@@ -1,1 +1,0 @@
-(self.webpackChunk_N_E=self.webpackChunk_N_E||[]).push([[1637],{97105:function(n,_,e){(window.__NEXT_P=window.__NEXT_P||[]).push(["/admin/_layout/_headers/ContentHeader",function(){return e(7615)}])}},function(n){n.O(0,[2888,9774,179],function(){return n(n.s=97105)}),_N_E=n.O()}]);

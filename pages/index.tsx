@@ -68,7 +68,7 @@ const Index: NextPage = () => {
 			<Head>
 				<title>{demoPagesMenu.sales.subMenu.dashboard.text}</title>
 			</Head>
-			<SubHeader>
+			{/* <SubHeader>
 				<SubHeaderLeft>
 					<span className='h4 mb-0 fw-bold'>Overview</span>
 					<SubheaderSeparator />
@@ -88,10 +88,10 @@ const Index: NextPage = () => {
 						<strong>Marketing</strong> Team
 					</CommonAvatarTeam>
 				</SubHeaderRight>
-			</SubHeader>
+			</SubHeader> */}
 			<Page container='fluid'>
 				<div className='row'>
-					<div className='col-12'>
+					{/* <div className='col-12'>
 						<CommonDashboardAlert />
 					</div>
 
@@ -127,7 +127,7 @@ const Index: NextPage = () => {
 					</div>
 					<div className='col-xxl-8'>
 						<CommonDashboardTopSeller />
-					</div>
+					</div> */}
 				</div>
 			</Page>
 		</PageWrapper>

@@ -1,11 +1,4 @@
 {
-  "components\\extras\\Chart.tsx -> react-apexcharts": {
-    "id": 47229,
-    "files": [
-      "static/chunks/6c44d60f.097508fab66d5a4a.js",
-      "static/chunks/7229.7a443032bce33aa4.js"
-    ]
-  },
   "node_modules\\react-syntax-highlighter\\dist\\esm\\async-languages\\hljs.js -> highlight.js/lib/languages/1c": {
     "id": 73870,
     "files": []
@@ -1893,10 +1886,10 @@
   "routes\\asideRoutes.tsx -> ../pages/admin/_layout/_asides/AdminSidebar": {
     "id": 75458,
     "files": [
-      "static/chunks/3f06fcd6-389c7e75d87bd567.js",
-      "static/chunks/1118-8bbb16d4b7ae0513.js",
-      "static/chunks/4740-6bfbcb137a031dc3.js",
-      "static/chunks/5458.65ef0caeeb0abd45.js"
+      "static/chunks/3f06fcd6-371c87f2a6427b18.js",
+      "static/chunks/118-16b3df1ee6f8f358.js",
+      "static/chunks/740-2e368a6d6f7e2cf5.js",
+      "static/chunks/458.6152fd5ae700b571.js"
     ]
   }
 }

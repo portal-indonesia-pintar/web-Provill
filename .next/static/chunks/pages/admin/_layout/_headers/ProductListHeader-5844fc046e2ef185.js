@@ -1,1 +1,0 @@
-(self.webpackChunk_N_E=self.webpackChunk_N_E||[]).push([[9181],{95770:function(n,_,u){(window.__NEXT_P=window.__NEXT_P||[]).push(["/admin/_layout/_headers/ProductListHeader",function(){return u(10458)}])}},function(n){n.O(0,[2888,9774,179],function(){return n(n.s=95770)}),_N_E=n.O()}]);
