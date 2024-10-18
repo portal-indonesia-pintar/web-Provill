@@ -42,39 +42,56 @@ import PaginationButtons, { dataPagination, PER_COUNT } from '../../components/P
 import useSortableData from '../../hooks/useSortableData';
 import useDarkMode from '../../hooks/useDarkMode';
 import Select from '@call-components/bootstrap/forms/Select';
-import TipeBayar from '@call-components/lahan/TipeBayar';
-import Option from '@call-components/bootstrap/Option';
-import { ClusterGet } from '@call-root-lib/services/ClusterServices/ClusterService';
+import { ClusterDelete, ClusterGet, ClusterStore } from '@call-root-lib/services/ClusterServices/ClusterService';
 import Spinner from '@call-components/bootstrap/Spinner';
 import { LahanGet } from '@call-root-lib/services/LandServices/LandService';
 import validate from '@call-common/function/validation/editPagesValidate';
 import { setTimeout } from 'timers/promises';
+import Option from '@call-components/bootstrap/Option';
+import { SELECT_KOTA, SELECT_PROVINSI } from '@call-common/type/helper';
+import { FiberManualRecord } from '@call-components/icon/material-icons';
+import withReactContent from 'sweetalert2-react-content';
+import Swal from 'sweetalert2';
 
 interface IDataLahanProps {
 	isFluid?: boolean;
 }
+
+interface IAlertProsesProps {
+	isProses?: boolean;
+	status?: string;
+}
+
+const AlertProses = ({ status }: IAlertProsesProps) => {
+	const alertOptions: any = {
+		icon: 'success',
+		title: `Berhasil ${status}`,
+		message: `Data cluster telah di ${status === 'add' ? 'Tambah' : (status === 'update') ? 'Update' : (status === 'hapus') ? 'Hapus' : ''}`,
+	};
+
+	withReactContent(Swal).fire({
+		icon: alertOptions.icon,
+		title: alertOptions.title,
+		text: alertOptions.message,
+	})
+
+
+};
+
 const CommonCluster: FC<IDataLahanProps> = ({ isFluid }) => {
 	const { themeStatus, darkModeStatus } = useDarkMode();
 
 	// data form
-	const [vCatatan, setVcatatan] = useState('tes');
 	const [dataChange, setDataChange] = useState(false)
 
-	console.log(vCatatan);
 
 	const SELECT_OPTIONS_CATATAN = [
 		{ value: 'Belum', text: 'Pembelian Laham Baru (Belum dicatat pada Persediaan Tanah' },
 		{ value: 'Sudah', text: 'Sebelumnya sudah dibeli (Sudah dicatat Persediaan Tanah' },
 	];
 
-	const SELECT_OPTIONS_CLUSTER = [
-		{ value: 'Cluster 1', text: 'Cluster 1' },
-		{ value: 'Cluster 2', text: 'Cluster 2' },
-		{ value: 'Cluster 3', text: 'Cluster 3' },
-	];
-
 	const [headerCloseStatus, setHeaderCloseStatus] = useState(true);
-	const [state, setState] = useState(false);
+	const [state, setState] = useState<Boolean>(false);
 	const [showTipeBayar, setShowTipeBayar] = useState(false);
 
 
@@ -85,14 +102,32 @@ const CommonCluster: FC<IDataLahanProps> = ({ isFluid }) => {
 	};
 
 	const [modalHapusCluster, setModalHapusCluster] = useState(false);
-	const handleModalHapus = () => {
+	const [getId, setGetId] = useState<string>('')
+	const handleModalHapus = (id: string) => {
+		setGetId(id)
 		setModalHapusCluster(!modalHapusCluster);
 	};
 
+	const handleDeleteCluster = async (id: string) => {
+		const isDelete = await ClusterDelete(id);
+		console.log(isDelete	);
+		if (isDelete.code === '200') {
+			AlertProses({ status: 'hapus' })
+			setDataChange(!dataChange)
+			setModalHapusCluster(false)
+		} else {
+			return ''
+		}
+	}
+
 	const [addClusterModal, setAddClusterModal] = useState(false);
 	// END :: Upcoming Events
+	const submitForm = (val: any) => {
+		val.preventDefault();
+		formikCreate.handleSubmit(val)
+	}
 
-	const createCluster = useFormik({
+	const formikCreate = useFormik({
 		enableReinitialize: true,
 		initialValues: {
 			land_id: '',
@@ -104,13 +139,71 @@ const CommonCluster: FC<IDataLahanProps> = ({ isFluid }) => {
 			phone_number: '',
 			total_land_area: 0,
 			siteplan: '',
+			address: '',
 			notify: true,
+		},
+		validate: (values) => {
+			const errors: {
+				land_id?: string;
+				name?: string;
+				province?: string;
+				city?: string,
+				subdistrict?: string,
+				village?: string,
+				phone_number?: string | number;
+				total_land_area?: string | number,
+				siteplan?: string,
+				address?: string,
+			} = {};
+
+			if (!values.land_id) {
+				errors.land_id = 'Required';
+			}
+			if (!values.name) {
+				errors.name = 'Required';
+			}
+			if (!values.province) {
+				errors.province = 'Required';
+			}
+			if (!values.city) {
+				errors.city = 'Required';
+			}
+			if (!values.subdistrict) {
+				errors.subdistrict = 'Required';
+			}
+			if (!values.village) {
+				errors.village = 'Required';
+			}
+			if (!values.phone_number) {
+				errors.phone_number = 'Required';
+			} else if (values.phone_number.length <= 11) {
+				errors.phone_number = 'Nomor HP minimal 11 characters';
+			}
+			if (!values.total_land_area) {
+				errors.total_land_area = 'Required';
+			}
+			if (!values.siteplan) {
+				errors.siteplan = 'Required';
+			}
+			if (!values.address) {
+				errors.address = 'Required';
+			}
+
+			return errors
 		},
 
 		validateOnChange: false,
-		onSubmit: () => {
-			console.log('');
-			return undefined;
+		onSubmit: async (values, { resetForm }) => {
+
+			const isStored = await ClusterStore(values);
+			console.log(isStored);
+			if (isStored?.status === 200) {
+				resetForm();
+				setDataChange(!dataChange)
+				AlertProses({ status: 'add' })
+			} else {
+				return false
+			}
 		},
 	});
 
@@ -118,43 +211,56 @@ const CommonCluster: FC<IDataLahanProps> = ({ isFluid }) => {
 
 	// get data lahan
 	const [dataCluster, setDataCluster] = useState<any>([])
-	console.log(dataCluster);
+	// console.log(dataCluster);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [perPage, setPerPage] = useState(PER_COUNT['5']);
-	const { items, requestSort, getClassNamesFor } = useSortableData(data);
+	// const { items, requestSort, getClassNamesFor } = useSortableData(USERS);
+	const { items, requestSort, getClassNamesFor } = useSortableData(dataCluster);
 
 	const getCluster = async () => {
 		try {
-			setState(false)
 			const res = await ClusterGet();
-			setDataCluster(res.data)
-			setState(true)
+			// const status = res.response.status
+			console.log(res === 'UNKNOWN');
+			if (res === 'UNKNOWN') {
+				setState(true)
+				return setDataCluster([])
+			}
+			else {
+				setState(true)
+				return setDataCluster(res.data)
+			}
 		} catch (error) {
+
 			console.log(error)
 			setState(false)
 		}
 	}
 
+
 	const [dataLahan, setDataLahan] = useState<any>([])
 	const getLahan = async () => {
+		const data: any[] = []
 		try {
-			setState(false)
 			const res = await LahanGet();
-			setDataLahan(res.data)
-			// setDataLahan(res.data.map(v => {
-			// 	value : v.uuid,
-			// 	text: v.uuid
-			// }))
-			setState(true)
+			res.data.data.forEach((i: any) => {
+				data.push({
+					value: i.uuid,
+					text: i.land_name
+				})
+			})
+			setDataLahan(data)
 		} catch (error) {
 			console.log(error)
-			setState(false)
 		}
 	}
 
 	useEffect(() => {
 		getLahan()
-		// getCluster();
+	}, [])
+
+	useEffect(() => {
+		getCluster();
 	}, [dataChange])
 
 	return (
@@ -178,24 +284,114 @@ const CommonCluster: FC<IDataLahanProps> = ({ isFluid }) => {
 				</CardHeader>
 				{state ? (
 					<>
+						<CardBody className='table-responsive' isScrollable={isFluid}>
+							<table className='table table-modern'>
+								<thead>
+									<tr>
+										<th>No</th>
+										<th>Nama Lahan</th>
+										<th>Cluster</th>
+										<th>Provinsi</th>
+										<th>Kota</th>
+										<th>Kecamatan</th>
+										<th>Kelurahan</th>
+										<th>Alamat</th>
+										<th>Luas lahan</th>
+										<th>Lokasi denah</th>
+										{/* <th>Status</th> */}
+										<td style={{ width: 60 }} />
 
-						<div className="m-5 text-center">
-							<Spinner size={50} color='primary' />
-						</div>
+										<td />
+									</tr>
+								</thead>
+								<tbody>
+									{dataCluster.length > 0 ? (
+										<>
+											{dataPagination(items, currentPage, perPage).map((item, index) => (
+												<tr key={index}>
+													<td>{++index}</td>
+													<td>
+														<div className='d-flex align-items-center'>
+															<span className='text-nowrap'>
+																{dayjs(`${item.acquisition_date}`).format(
+																	'DD-MMMM-YYYY',
+																)}
+															</span>
+														</div>
+													</td>
+													<td>
+														<div className='d-flex'>
+															<div className='flex-grow-1 ms-3 d-flex align-items-center text-nowrap'>
+																{item.land_name}
+															</div>
+														</div>
+													</td>
+													<td>
+														<div>{item.land_owner}</div>
+													</td>
+													<td className='text-nowrap'>{item.area_size} m2</td>
+													<td className='text-nowrap'>{item.price_per_m2}</td>
+													<td className='text-nowrap'>{item.note}</td>
+
+													<td>
+														<div className='d-flex flew-row'>
+															<Button
+																isOutline={!darkModeStatus}
+																color='dark'
+																isLight={darkModeStatus}
+																className={classNames(
+																	'text-nowrap',
+																	{
+																		'border-light': !darkModeStatus,
+																	},
+																	'mx-3',
+																)}
+																icon='Edit'
+															// onClick={() => handleEditC(item.uuid)}
+															>
+																Edit
+															</Button>
+
+															<Button
+																isOutline={!darkModeStatus}
+																color='danger'
+																isLight={darkModeStatus}
+																className={classNames('text-nowrap', {
+																	'border-light': !darkModeStatus,
+																})}
+																icon='Delete'
+																onClick={() => { handleModalHapus(item.uuid) }}>
+																Hapus
+															</Button>
+														</div>
+													</td>
+												</tr>
+											))}
+										</>
+
+									) : (
+										<td colSpan={9} >
+											<h6 className='text-center text-nowrap mt-2'>Tidak ada data</h6>
+										</td>
+									)
+									}
+								</tbody>
+							</table>
+						</CardBody>
+						<PaginationButtons
+							data={items}
+							label='items'
+							setCurrentPage={setCurrentPage}
+							currentPage={currentPage}
+							perPage={perPage}
+							setPerPage={setPerPage}
+						/>
 					</>
 				) : (
 					<div className="m-5 text-center">
 						<Spinner size={50} color='primary' />
 					</div>
 				)}
-				<PaginationButtons
-					data={items}
-					label='items'
-					setCurrentPage={setCurrentPage}
-					currentPage={currentPage}
-					perPage={perPage}
-					setPerPage={setPerPage}
-				/>
 			</Card>
 
 			{/* Modal Add Cluster */}
@@ -215,144 +411,221 @@ const CommonCluster: FC<IDataLahanProps> = ({ isFluid }) => {
 					</ModalTitle>
 				</ModalHeader>
 				<ModalBody>
-					<form>
-						<div className='row'>
+					<form onSubmit={submitForm}>
+						<div className="row g-4">
+							<FormGroup
+								id='exampleTypesPlaceholder--$'
+								label='Nama Cluster'
+								aria-label='.form-control-lg example'
+								labelClassName='text-capitalize' className='mb-4'>
+								<Input
+									type='text'
+									placeholder='nama cluster'
+									name='name'
+									value={formikCreate.values.name}
+									isTouched={formikCreate.touched.name}
+									onChange={formikCreate.handleChange}
+									onBlur={formikCreate.handleBlur}
+									invalidFeedback={formikCreate.errors.name}
+								/>
+							</FormGroup>
+						</div>
+						<div className='row g-4 '>
 							<div className='col-lg-6'>
 								<FormGroup
 									id='exampleTypesPlaceholder--$'
 									label='Nama Lahan'
-									labelClassName='text-capitalize'>
-									{/* <Input
-										// size='md'
-										type='text'
-										placeholder='Masukkan Nama Lahan'
-										aria-label='.form-control-lg example'
-									/> */}
-									{/* <Select
-										// size='md'
-										ariaLabel='Default select example'
+									labelClassName='text-capitalize'
+									className='mb-4'>
+									<Select ariaLabel='Default select example'
 										placeholder='-- Pilih Tanah --'
-										// onChange={(v) => setVcatatan(v)}
-										// value={vCatatan}
-										list={dataLahan}
-									/> */}
-									<Select ariaLabel='Default select example' placeholder='-- Pilih Tanah --'>
+										name='land_id'
+										value={formikCreate.values.land_id}
+										onChange={formikCreate.handleChange}
+										onBlur={formikCreate.handleBlur}
+										isTouched={formikCreate.touched.land_id}
+										invalidFeedback={formikCreate.errors.land_id}>
 										{
-											dataLahan.map((v: any) => {
-												console.log(v);
-												// <Option value={v.uuid}>tes</Option>
-												<option>tes</option>
-											})
+											dataLahan.map((i: any) => (
+												<Option key={i.value} value={i.value}>
+													{i.text}
+												</Option>
+											))
 										}
-										{/* <Option>Tes</Option> */}
 									</Select>
 								</FormGroup>
-
-								<FormGroup
-									id='exampleTypesPlaceholder--$'
-									label='Luas total tanah'
-									labelClassName='text-capitalize'>
-									<Input
-										// size='md'
-										type='number'
-										placeholder='Luas tanah total (m2)'
-									/>
-								</FormGroup>
-
-								<FormGroup
-									id='exampleTypesPlaceholder--$'
-									label='Lokasi tanah'
-									labelClassName='text-capitalize'>
-									<Input
-										// size='md'
-										type='text'
-										placeholder='lokasi tanah cluster'
-									/>
-								</FormGroup>
-
-								<FormGroup id='exampleSizeTextarea' label='Alamat lengkap'>
-									<Textarea placeholder='alamat' />
-								</FormGroup>
-
 							</div>
 							<div className='col-lg-6'>
 								<FormGroup
 									id='exampleTypesPlaceholder--$'
 									label='No. Hp'
-									labelClassName='text-capitalize'>
+									labelClassName='text-capitalize' className='mb-4'>
 									<Input
-										// size='md'
 										type='tel'
-										placeholder='+62-999-9999-9999'
+										placeholder='089-999-9999-9999'
 										autoComplete='tel'
-										mask='+62-999-9999-9999'
+										mask='089-999-9999-9999'
+										name='phone_number'
+										value={formikCreate.values.phone_number}
+										onChange={formikCreate.handleChange}
+										onBlur={formikCreate.handleBlur}
+										isTouched={formikCreate.touched.phone_number}
+										invalidFeedback={formikCreate.errors.phone_number}
 									/>
 								</FormGroup>
+							</div>
+
+						</div>
+
+						<div className="row g-4 ">
+							<div className="col-lg-6">
 								<FormGroup
 									id='exampleTypesPlaceholder--$'
-									label='Provinsi :'
+									label='Total luas tanah'
 									labelClassName='text-capitalize'>
-									<Select
-										// size='md'
-										ariaLabel='Default select example'
-										placeholder='-- Pilih Provinsi --'
-										// onChange={(v) => setVcatatan(v)}
-										// value={vCatatan}
-										list={SELECT_OPTIONS_CATATAN}
+									<Input
+										type='number'
+										placeholder='Luas tanah total (m2)'
+										name='total_land_area'
+										value={formikCreate.values.total_land_area}
+										onChange={formikCreate.handleChange}
+										onBlur={formikCreate.handleBlur}
+										isTouched={formikCreate.touched.total_land_area}
+										invalidFeedback={formikCreate.errors.total_land_area}
 									/>
 								</FormGroup>
+							</div>
+							<div className="col-lg-6">
+								<FormGroup
+									id='exampleTypesPlaceholder--$'
+									label='Provinsi'
+									labelClassName='text-capitalize'>
+									<Select
+										ariaLabel='Default select example'
+										placeholder='-- Pilih Provinsi --'
+										name='province'
+										value={formikCreate.values.province}
+										onChange={formikCreate.handleChange}
+										onBlur={formikCreate.handleBlur}
+										isTouched={formikCreate.touched.province}
+										invalidFeedback={formikCreate.errors.province}
+										list={SELECT_PROVINSI}
+									/>
+								</FormGroup>
+							</div>
+						</div>
+
+						<div className="row g-4 mt-1">
+							<div className="col-lg-6">
+								<FormGroup
+									id='exampleTypesPlaceholder--$'
+									label='Lokasi tanah'
+									labelClassName='text-capitalize'>
+									<Input
+										type='text'
+										placeholder='lokasi tanah cluster'
+										name='siteplan'
+										value={formikCreate.values.siteplan}
+										onChange={formikCreate.handleChange}
+										onBlur={formikCreate.handleBlur}
+										isTouched={formikCreate.touched.siteplan}
+										invalidFeedback={formikCreate.errors.siteplan}
+									/>
+								</FormGroup>
+							</div>
+							<div className="col-lg-6">
 								<FormGroup
 									id='exampleTypesPlaceholder--$'
 									label='Kota :'
 									labelClassName='text-capitalize'>
 									<Select
-										// size='md'
 										ariaLabel='Default select example'
 										placeholder='-- Pilih Kota --'
-										// onChange={(v) => setVcatatan(v)}
-										// value={vCatatan}
-										list={SELECT_OPTIONS_CATATAN}
+										name='city'
+										value={formikCreate.values.city}
+										onChange={formikCreate.handleChange}
+										onBlur={formikCreate.handleBlur}
+										isTouched={formikCreate.touched.city}
+										invalidFeedback={formikCreate.errors.city}
+										list={SELECT_KOTA}
 									/>
 								</FormGroup>
+
+							</div>
+						</div>
+
+						<div className="row g-4 mt-1">
+							<div className="col-lg-6">
 								<FormGroup
 									id='exampleTypesPlaceholder--$'
 									label='Kecamatan'
 									labelClassName='text-capitalize'>
 									<Input
-										// size='md'
 										type='text'
 										placeholder='kecamatan'
+										name='subdistrict'
+										value={formikCreate.values.subdistrict}
+										onChange={formikCreate.handleChange}
+										onBlur={formikCreate.handleBlur}
+										isTouched={formikCreate.touched.subdistrict}
+										invalidFeedback={formikCreate.errors.subdistrict}
 									/>
 								</FormGroup>
-
+							</div>
+							<div className="col-lg-6">
 								<FormGroup
 									id='exampleTypesPlaceholder--$'
 									label='Kelurahan'
 									labelClassName='text-capitalize'>
 									<Input
-										// size='md'
 										type='text'
 										placeholder='kelurahan'
+										name='village'
+										value={formikCreate.values.village}
+										onChange={formikCreate.handleChange}
+										onBlur={formikCreate.handleBlur}
+										isTouched={formikCreate.touched.village}
+										invalidFeedback={formikCreate.errors.village}
 									/>
 								</FormGroup>
 
-
 							</div>
 						</div>
+
+						<div className="row g-4 mt-1">
+							<FormGroup
+								id='exampleTypesPlaceholder--$'
+								label='Alamat'
+								labelClassName='text-capitalize'>
+								<Input
+									type='text'
+									placeholder='alamat lengkap'
+									name='address'
+									value={formikCreate.values.address}
+									onChange={formikCreate.handleChange}
+									onBlur={formikCreate.handleBlur}
+									isTouched={formikCreate.touched.address}
+									invalidFeedback={formikCreate.errors.address}
+								/>
+							</FormGroup>
+						</div>
+						<ModalFooter>
+							<Button
+								color='info'
+								isOutline
+								className='border-0'
+								onClick={() => {
+									setAddClusterModal(false)
+									formikCreate.resetForm()
+								}}>
+								Close
+							</Button>
+							<Button type='submit' color='info' icon='Save'>
+								Tambah Cluster
+							</Button>
+						</ModalFooter>
 					</form>
 				</ModalBody>
-				<ModalFooter>
-					<Button
-						color='info'
-						isOutline
-						className='border-0'
-						onClick={() => setAddClusterModal(false)}>
-						Close
-					</Button>
-					<Button color='info' icon='Save'>
-						Tambah Cluster
-					</Button>
-				</ModalFooter>
 			</Modal>
 
 			{/* Modal Edit Cluster */}
@@ -395,13 +668,11 @@ const CommonCluster: FC<IDataLahanProps> = ({ isFluid }) => {
 									/> */}
 									<Select ariaLabel='Default select example' placeholder='-- Pilih Tanah --'>
 										{
-											dataLahan.map((v: any) => {
-												console.log(v);
-												// <Option value={v.uuid}>tes</Option>
-												<option>tes</option>
-											})
+											// dataLahan.map((v: any) => {
+											// 	console.log(v);
+											// 	<option>tes</option>
+											// })
 										}
-										{/* <Option>Tes</Option> */}
 									</Select>
 								</FormGroup>
 
@@ -493,7 +764,6 @@ const CommonCluster: FC<IDataLahanProps> = ({ isFluid }) => {
 									/>
 								</FormGroup>
 
-
 							</div>
 						</div>
 					</form>
@@ -534,10 +804,14 @@ const CommonCluster: FC<IDataLahanProps> = ({ isFluid }) => {
 						color='info'
 						isOutline
 						className='border-0'
-						onClick={() => setModalHapusCluster(false)}>
+						onClick={() => {
+							setModalHapusCluster(false)
+							setGetId('')
+						}
+						}>
 						Close
 					</Button>
-					<Button color='danger' icon='Delete'>
+					<Button onClick={() => handleDeleteCluster(getId)} color='danger' icon='Delete'>
 						Hapus
 					</Button>
 				</ModalFooter>

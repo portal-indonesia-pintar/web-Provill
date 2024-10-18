@@ -43,6 +43,10 @@ interface alertProps {
 	message: string;
 }
 
+interface getDataById {
+	land_name:string;
+}
+
 const AlertProses = ({ status }: IAlertProsesProps) => {
 	const alertOptions: any = {
 		icon: 'success',
@@ -89,7 +93,7 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 		// console.log(uuid);
 		const res = await LahanShow(uuid)
 		console.log(res.data);
-		// setEditModalLahan(!editModalLahan);
+		setEditModalLahan(!editModalLahan);
 	};
 
 	const [modalHapusLahan, setModalHapusLahan] = useState(false);
@@ -299,17 +303,17 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 																Edit
 															</Button>
 
-															{/* <Button
-															isOutline={!darkModeStatus}
-															color='danger'
-															isLight={darkModeStatus}
-															className={classNames('text-nowrap', {
-																'border-light': !darkModeStatus,
-															})}
-															icon='Delete'
-															onClick={handleModalHapus}>
-															Hapus
-														</Button> */}
+															<Button
+																isOutline={!darkModeStatus}
+																color='danger'
+																isLight={darkModeStatus}
+																className={classNames('text-nowrap', {
+																	'border-light': !darkModeStatus,
+																})}
+																icon='Delete'
+																onClick={handleModalHapus}>
+																Hapus
+															</Button>
 														</div>
 													</td>
 												</tr>
@@ -317,9 +321,9 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 										</>
 
 									) : (
-											<td colSpan={9} >
-												<h6 className='text-center text-nowrap mt-2'>Tidak ada data</h6>
-											</td>
+										<td colSpan={9} >
+											<h6 className='text-center text-nowrap mt-2'>Tidak ada data</h6>
+										</td>
 									)
 									}
 								</tbody>
@@ -575,9 +579,9 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 					</ModalTitle>
 				</ModalHeader>
 				<ModalBody>
-					<form>
+					<form onSubmit={handleAddLahan}>
 						<div className='row'>
-							<div className='col-lg-6'>
+							<div className='col-lg'>
 								<div className='row g-4'>
 									<div className='col-6'>
 										<FormGroup
@@ -589,21 +593,36 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 												type='text'
 												placeholder='Masukkan Nama Tanah'
 												aria-label='.form-control-lg example'
+												name='land_name'
+												value={formikAdd.values.land_name}
+												isTouched={formikAdd.touched.land_name}
+												onChange={formikAdd.handleChange}
+												onBlur={formikAdd.handleBlur}
+												invalidFeedback={
+													formikAdd.errors.land_name
+												}
 											/>
 										</FormGroup>
 									</div>
 									<div className='col-6'>
 										<FormGroup
 											id='exampleTypesPlaceholder--$'
-											label='Untuk Cluster/Proyek'
+											label='Nama Pemilik Tanah'
 											labelClassName='text-capitalize'>
-											<Select
+
+											<Input
 												// size='md'
-												ariaLabel='Default select example'
-												placeholder='-- Pilih Perumahan --'
-												// onChange={formikOneWay.handleChange}
-												// value={formikOneWay.values.exampleSelectOneWay}
-												list={SELECT_OPTIONS_CLUSTER}
+												type='text'
+												placeholder='Masukkan Nama Pemilik Tanah'
+												aria-label='.form-control-lg example'
+												name='land_owner'
+												value={formikAdd.values.land_owner}
+												isTouched={formikAdd.touched.land_owner}
+												onChange={formikAdd.handleChange}
+												onBlur={formikAdd.handleBlur}
+												invalidFeedback={
+													formikAdd.errors.land_owner
+												}
 											/>
 										</FormGroup>
 									</div>
@@ -620,20 +639,40 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 												type='date'
 												placeholder='Tanggal Perolehan Lahan'
 												aria-label='.form-control-lg example'
+												name='acquisition_date'
+												value={formikAdd.values.acquisition_date}
+												isTouched={formikAdd.touched.acquisition_date}
+												onChange={formikAdd.handleChange}
+												onBlur={formikAdd.handleBlur}
+												invalidFeedback={
+													formikAdd.errors.acquisition_date
+												}
 											/>
 										</FormGroup>
 									</div>
 									<div className='col-6'>
 										<FormGroup
 											id='exampleTypesPlaceholder--$'
-											label='No. Hp Tuan Tanah'
+											label='No. Hp Tuan Tanah (digit tidak harus terisi semua)'
 											labelClassName='text-capitalize'>
 											<Input
 												// size='md'
 												type='tel'
-												placeholder='+1 (999) 999-9999'
-												autoComplete='tel'
-												mask='+1 (999) 999-9999'
+												placeholder='08XX-XXXX-XXXX'
+												name='land_owner_phone'
+												mask='089-9999-9999-99'
+
+												value={formikAdd.values.land_owner_phone.replace(/_/g, '').replace(/-/g, '')}
+												isTouched={formikAdd.touched.land_owner_phone}
+												onChange={(e: any) => {
+													const value = e.target.value.replace(/_/g, '').replace(/-/g, '');
+													console.log(value);
+													formikAdd.setFieldValue('land_owner_phone', value)
+												}}
+												onBlur={formikAdd.handleBlur}
+												invalidFeedback={
+													formikAdd.errors.land_owner_phone
+												}
 											/>
 										</FormGroup>
 									</div>
@@ -650,6 +689,14 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 												type='number'
 												placeholder='Luas Area Tanah'
 												aria-label='.form-control-lg example'
+												name='area_size'
+												value={formikAdd.values.area_size}
+												isTouched={formikAdd.touched.area_size}
+												onChange={formikAdd.handleChange}
+												onBlur={formikAdd.handleBlur}
+												invalidFeedback={
+													formikAdd.errors.area_size
+												}
 											/>
 										</FormGroup>
 									</div>
@@ -662,52 +709,51 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 												// size='md'
 												type='number'
 												placeholder='Harga tanah per m^2'
+												name='price_per_m2'
+												value={formikAdd.values.price_per_m2}
+												isTouched={formikAdd.touched.price_per_m2}
+												onChange={formikAdd.handleChange}
+												onBlur={formikAdd.handleBlur}
+												invalidFeedback={
+													formikAdd.errors.price_per_m2
+												}
 											/>
 										</FormGroup>
 									</div>
 								</div>
 
-								<div className='row g-4 mt-2'>
-									<FormGroup id='exampleSizeTextarea' label='Catatan'>
-										<Textarea placeholder='Catatan mengenai lahan' />
-									</FormGroup>
-								</div>
-							</div>
-							<div className='col-lg-6'>
-								<div className='row g-4'>
-									<FormGroup
-										id='exampleTypesPlaceholder--$'
-										label='Dicatat sebagai :'
-										labelClassName='text-capitalize'>
-										<Select
-											// size='md'
-											ariaLabel='Default select example'
-											placeholder='-- Pilih Catatan --'
-											// onChange={handleChangeCatatan}
-											// value={formikOneWay.values.exampleSelectOneWay}
-											list={SELECT_OPTIONS_CATATAN}
-										/>
-									</FormGroup>
-								</div>
-								<div className='row g-4 mt-2'>
-									<TipeBayar />
+								<div className='row g-4 mt-2 mx-auto'>
+									<div className="col-md-6">
+										<FormGroup id='exampleSizeTextarea' label='Catatan'>
+											<Textarea name='note'
+												value={formikAdd.values.note}
+												isTouched={formikAdd.touched.note}
+												onChange={formikAdd.handleChange}
+												onBlur={formikAdd.handleBlur}
+												invalidFeedback={
+													formikAdd.errors.note
+												}
+												placeholder='Catatan mengenai lahan' />
+										</FormGroup>
+
+									</div>
 								</div>
 							</div>
 						</div>
+						<ModalFooter>
+							<Button
+								color='info'
+								isOutline
+								className='border-0'
+								onClick={() => setEditModalLahan(false)}>
+								Close
+							</Button>
+							<Button type='submit' color='info' icon='Save'>
+								Update Lahan
+							</Button>
+						</ModalFooter>
 					</form>
 				</ModalBody>
-				<ModalFooter>
-					<Button
-						color='info'
-						isOutline
-						className='border-0'
-						onClick={() => setEditModalLahan(false)}>
-						Close
-					</Button>
-					<Button color='info' icon='Save'>
-						Update Lahan
-					</Button>
-				</ModalFooter>
 			</Modal>
 
 			{/* Modal Hapus Lahan */}
