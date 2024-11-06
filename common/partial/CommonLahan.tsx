@@ -88,6 +88,7 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 	const [state, setState] = useState(false);
 
 	// BEGIN :: Upcoming Events
+	// const 
 	const [editModalLahan, setEditModalLahan] = useState(false);
 	const handleEditLahan = async (uuid: string) => {
 		// console.log(uuid);
@@ -355,8 +356,8 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 				// isStaticBackdrop={staticBackdropStatus}
 				isScrollable={true}
 				isCentered={true}
-				size='xl'
-				fullScreen='xl'
+				size='lg'
+				fullScreen='lg'
 				isAnimation={false}>
 				<ModalHeader>
 					<ModalTitle id='exampleModalLabel' tag='h2' className='m-3'>
@@ -570,8 +571,8 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 				// isStaticBackdrop={staticBackdropStatus}
 				isScrollable={true}
 				isCentered={true}
-				size='xl'
-				fullScreen='xl'
+				size='lg'
+				fullScreen='lg'
 				isAnimation={false}>
 				<ModalHeader>
 					<ModalTitle id='exampleModalLabel' tag='h2' className='m-3'>

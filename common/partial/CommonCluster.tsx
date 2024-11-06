@@ -110,7 +110,7 @@ const CommonCluster: FC<IDataLahanProps> = ({ isFluid }) => {
 
 	const handleDeleteCluster = async (id: string) => {
 		const isDelete = await ClusterDelete(id);
-		console.log(isDelete	);
+		console.log(isDelete);
 		if (isDelete.code === '200') {
 			AlertProses({ status: 'hapus' })
 			setDataChange(!dataChange)
@@ -150,7 +150,7 @@ const CommonCluster: FC<IDataLahanProps> = ({ isFluid }) => {
 				city?: string,
 				subdistrict?: string,
 				village?: string,
-				phone_number?: string | number;
+				phone_number?: string;
 				total_land_area?: string | number,
 				siteplan?: string,
 				address?: string,
@@ -195,6 +195,7 @@ const CommonCluster: FC<IDataLahanProps> = ({ isFluid }) => {
 		validateOnChange: false,
 		onSubmit: async (values, { resetForm }) => {
 
+			// console.log(values);
 			const isStored = await ClusterStore(values);
 			console.log(isStored);
 			if (isStored?.status === 200) {
@@ -221,7 +222,7 @@ const CommonCluster: FC<IDataLahanProps> = ({ isFluid }) => {
 		try {
 			const res = await ClusterGet();
 			// const status = res.response.status
-			console.log(res === 'UNKNOWN');
+			// console.log('data index : ',res.data[1].land.land_name);
 			if (res === 'UNKNOWN') {
 				setState(true)
 				return setDataCluster([])
@@ -249,6 +250,7 @@ const CommonCluster: FC<IDataLahanProps> = ({ isFluid }) => {
 					text: i.land_name
 				})
 			})
+			// console.log('lahan index : ', data);
 			setDataLahan(data)
 		} catch (error) {
 			console.log(error)
@@ -297,7 +299,7 @@ const CommonCluster: FC<IDataLahanProps> = ({ isFluid }) => {
 										<th>Kelurahan</th>
 										<th>Alamat</th>
 										<th>Luas lahan</th>
-										<th>Lokasi denah</th>
+										<th>No. Telepon</th>
 										{/* <th>Status</th> */}
 										<td style={{ width: 60 }} />
 
@@ -308,30 +310,56 @@ const CommonCluster: FC<IDataLahanProps> = ({ isFluid }) => {
 									{dataCluster.length > 0 ? (
 										<>
 											{dataPagination(items, currentPage, perPage).map((item, index) => (
+												
 												<tr key={index}>
 													<td>{++index}</td>
 													<td>
 														<div className='d-flex align-items-center'>
 															<span className='text-nowrap'>
-																{dayjs(`${item.acquisition_date}`).format(
-																	'DD-MMMM-YYYY',
-																)}
+																{item.land?.land_name || '-'}
 															</span>
 														</div>
 													</td>
 													<td>
-														<div className='d-flex'>
-															<div className='flex-grow-1 ms-3 d-flex align-items-center text-nowrap'>
-																{item.land_name}
-															</div>
+														<div className='flex-grow-1 ms-3 d-flex align-items-center text-nowrap'>
+															{item.name}
 														</div>
 													</td>
 													<td>
-														<div>{item.land_owner}</div>
+														<div className='flex-grow-1 ms-3 d-flex align-items-center text-nowrap'>
+															{item.province}
+														</div>
 													</td>
-													<td className='text-nowrap'>{item.area_size} m2</td>
-													<td className='text-nowrap'>{item.price_per_m2}</td>
-													<td className='text-nowrap'>{item.note}</td>
+													<td>
+														<div className='flex-grow-1 ms-3 d-flex align-items-center text-nowrap'>
+															{item.city}
+														</div>
+													</td>
+													<td>
+														<div className='flex-grow-1 ms-3 d-flex align-items-center text-nowrap'>
+															{item.subdistrict}
+														</div>
+													</td>
+													<td>
+														<div className='flex-grow-1 ms-3 d-flex align-items-center text-nowrap'>
+															{item.village}
+														</div>
+													</td>
+													<td>
+														<div className='flex-grow-1 ms-3 d-flex align-items-center text-nowrap'>
+															{item.address}
+														</div>
+													</td>
+													<td>
+														<div className='flex-grow-1 ms-3 d-flex align-items-center text-nowrap'>
+															{item.total_land_area} m2
+														</div>
+													</td>
+													<td>
+														<div className='flex-grow-1 ms-3 d-flex align-items-center text-nowrap'>
+															{item.phone_number}
+														</div>
+													</td>
 
 													<td>
 														<div className='d-flex flew-row'>
@@ -466,8 +494,12 @@ const CommonCluster: FC<IDataLahanProps> = ({ isFluid }) => {
 										autoComplete='tel'
 										mask='089-999-9999-9999'
 										name='phone_number'
-										value={formikCreate.values.phone_number}
-										onChange={formikCreate.handleChange}
+										value={formikCreate.values.phone_number.replace(/_/g, '').replace(/-/g, '')}
+										onChange={(e: any) => {
+											const value = e.target.value.replace(/_/g, '').replace(/-/g, '');
+											console.log(value);
+											formikCreate.setFieldValue('phone_number', value)
+										}}
 										onBlur={formikCreate.handleBlur}
 										isTouched={formikCreate.touched.phone_number}
 										invalidFeedback={formikCreate.errors.phone_number}
