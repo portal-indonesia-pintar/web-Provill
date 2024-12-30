@@ -25,7 +25,12 @@ import useSortableData from '../../hooks/useSortableData';
 import useDarkMode from '../../hooks/useDarkMode';
 import Select from '@call-components/bootstrap/forms/Select';
 import TipeBayar from '@call-components/lahan/TipeBayar';
-import { LahanGet, LahanShow, LahanStore } from '@call-root-lib/services/LandServices/LandService';
+import {
+	LahanGet,
+	LahanShow,
+	LahanStore,
+	LahanUpdate,
+} from '@call-root-lib/services/LandServices/LandService';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
 import Spinner from '@call-components/bootstrap/Spinner';
@@ -44,23 +49,21 @@ interface alertProps {
 }
 
 interface getDataById {
-	land_name:string;
+	land_name: string;
 }
 
 const AlertProses = ({ status }: IAlertProsesProps) => {
 	const alertOptions: any = {
 		icon: 'success',
 		title: `Berhasil ${status}`,
-		message: `Data lahan telah di ${status === 'add' ? 'Tambah' : (status === 'update') ? 'Update' : (status === 'hapus') ? 'Hapus' : ''}`,
+		message: `Data lahan telah di ${status === 'add' ? 'Tambah' : status === 'update' ? 'Update' : status === 'hapus' ? 'Hapus' : ''}`,
 	};
 
 	withReactContent(Swal).fire({
 		icon: alertOptions.icon,
 		title: alertOptions.title,
 		text: alertOptions.message,
-	})
-
-
+	});
 };
 
 interface IDataLahanProps {
@@ -68,7 +71,7 @@ interface IDataLahanProps {
 }
 const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 	const { themeStatus, darkModeStatus } = useDarkMode();
-	const [dataChange, setDataChange] = useState(false)
+	const [dataChange, setDataChange] = useState(false);
 
 	// data form
 	const [vCatatan, setVcatatan] = useState('');
@@ -88,12 +91,15 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 	const [state, setState] = useState(false);
 
 	// BEGIN :: Upcoming Events
-	// const 
+	// const
 	const [editModalLahan, setEditModalLahan] = useState(false);
+	const [detailLahan, setDetailLahan] = useState<any>([]);
+	const [getId, setGetId] = useState<string>('');
 	const handleEditLahan = async (uuid: string) => {
 		// console.log(uuid);
-		const res = await LahanShow(uuid)
-		console.log(res.data);
+		setGetId(uuid);
+		const res = await LahanShow(uuid);
+		setDetailLahan(res.data);
 		setEditModalLahan(!editModalLahan);
 	};
 
@@ -111,19 +117,19 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 	const [addLahanModal, setAddLahanModal] = useState(false);
 	const handleAddLahan = (val: any) => {
 		val.preventDefault();
-		formikAdd.handleSubmit(val)
-	}
+		formikAdd.handleSubmit(val);
+	};
 
 	const formikAdd = useFormik({
 		enableReinitialize: true,
 		initialValues: {
-			land_name: '',
-			acquisition_date: '',
-			land_owner: '',
-			land_owner_phone: '',
-			area_size: '',
-			price_per_m2: '',
-			note: '',
+			land_name: getId == '' ? '' : detailLahan.data.land_name,
+			acquisition_date: getId == '' ? '' : detailLahan.data.acquisition_date.slice(0, 10),
+			land_owner: getId == '' ? '' : detailLahan.data.land_owner,
+			land_owner_phone: getId == '' ? '' : detailLahan.data.land_owner_phone,
+			area_size: getId == '' ? '' : detailLahan.data.area_size,
+			price_per_m2: getId == '' ? '' : detailLahan.data.price_per_m2,
+			note: getId == '' ? '' : detailLahan.data.note,
 			notify: true,
 		},
 		validate: (values) => {
@@ -132,9 +138,9 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 				land_owner?: string;
 				acquisition_date?: string;
 				land_owner_phone?: string;
-				area_size?: string | number,
-				price_per_m2?: string | number,
-				note?: string,
+				area_size?: string | number;
+				price_per_m2?: string | number;
+				note?: string;
 			} = {};
 
 			if (!values.land_name) {
@@ -159,55 +165,64 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 				errors.land_owner_phone = 'Required';
 			} else if (values.land_owner_phone.length >= 18) {
 				errors.land_owner_phone = 'Nomor HP minimal 18 characters';
-
 			}
 
-			return errors
+			return errors;
 		},
 		validateOnChange: false,
 		onSubmit: async (values, { resetForm }) => {
-			console.log(values);
 			// setShowToast(true)
-			const isStored = await LahanStore(values);
-			console.log(isStored);
+			if (getId != '') {
+				const isUpdate = await LahanUpdate(values, getId);
+				formikAdd.resetForm();
+				if (isUpdate?.status === 200) {
+					AlertProses({ status: 'update' });
+					resetForm();
+					setDataChange(!dataChange);
+					setEditModalLahan(false);
+					setGetId('');
+					return;
+				}
+				return;
+			}
 
+			const isStored = await LahanStore(values);
 			formikAdd.resetForm();
 			if (isStored?.status === 200) {
-				AlertProses({ status: 'add' })
+				AlertProses({ status: 'add' });
 				resetForm();
-				setDataChange(!dataChange)
-			} else {
-				return ''
+				setDataChange(!dataChange);
+				return;
 			}
-		}
+			return '';
+		},
 	});
 
 	// get data lahan
-	const [dataLahan, setDataLahan] = useState<any>([])
-	console.log(dataLahan);
+	const [dataLahan, setDataLahan] = useState<any>([]);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [perPage, setPerPage] = useState(PER_COUNT['5']);
 	const { items, requestSort, getClassNamesFor } = useSortableData(dataLahan);
 
 	const getLahan = async () => {
 		try {
-			setState(false)
+			setState(false);
 			const res = await LahanGet();
 			if (res.status === 200) {
-				const response = res.data
-				setDataLahan(response.data)
+				const response = res.data;
+				setDataLahan(response.data);
 			}
 
-			setState(true)
+			setState(true);
 		} catch (error) {
-			console.log(error)
-			setState(false)
+			console.log(error);
+			setState(false);
 		}
-	}
+	};
 
 	useEffect(() => {
 		getLahan();
-	}, [dataChange])
+	}, [dataChange]);
 
 	return (
 		<>
@@ -223,7 +238,7 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 							isLight
 							onClick={() => {
 								setAddLahanModal(true);
-								formikAdd.resetForm()
+								formikAdd.resetForm();
 							}}>
 							Tambah Lahan
 						</Button>
@@ -260,73 +275,86 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 								<tbody>
 									{dataLahan.length > 0 ? (
 										<>
-											{dataPagination(items, currentPage, perPage).map((item, index) => (
-												<tr key={index}>
-													<td>{++index}</td>
-													<td>
-														<div className='d-flex align-items-center'>
-															<span className='text-nowrap'>
-																{dayjs(`${item.acquisition_date}`).format(
-																	'DD-MMMM-YYYY',
-																)}
-															</span>
-														</div>
-													</td>
-													<td>
-														<div className='d-flex'>
-															<div className='flex-grow-1 ms-3 d-flex align-items-center text-nowrap'>
-																{item.land_name}
+											{dataPagination(items, currentPage, perPage).map(
+												(item, index) => (
+													<tr key={index}>
+														<td>{++index}</td>
+														<td>
+															<div className='d-flex align-items-center'>
+																<span className='text-nowrap'>
+																	{dayjs(
+																		`${item.acquisition_date}`,
+																	).format('DD-MMMM-YYYY')}
+																</span>
 															</div>
-														</div>
-													</td>
-													<td>
-														<div>{item.land_owner}</div>
-													</td>
-													<td className='text-nowrap'>{item.area_size} m2</td>
-													<td className='text-nowrap'>{toRupiah(item.price_per_m2)}</td>
-													<td className='text-nowrap'>{item.note}</td>
+														</td>
+														<td>
+															<div className='d-flex'>
+																<div className='flex-grow-1 ms-3 d-flex align-items-center text-nowrap'>
+																	{item.land_name}
+																</div>
+															</div>
+														</td>
+														<td>
+															<div>{item.land_owner}</div>
+														</td>
+														<td className='text-nowrap'>
+															{item.area_size} m2
+														</td>
+														<td className='text-nowrap'>
+															{toRupiah(item.price_per_m2)}
+														</td>
+														<td className='text-nowrap'>{item.note}</td>
 
-													<td>
-														<div className='d-flex flew-row'>
-															<Button
-																isOutline={!darkModeStatus}
-																color='dark'
-																isLight={darkModeStatus}
-																className={classNames(
-																	'text-nowrap',
-																	{
-																		'border-light': !darkModeStatus,
-																	},
-																	'mx-3',
-																)}
-																icon='Edit'
-																onClick={() => handleEditLahan(item.uuid)}>
-																Edit
-															</Button>
+														<td>
+															<div className='d-flex flew-row'>
+																<Button
+																	isOutline={!darkModeStatus}
+																	color='dark'
+																	isLight={darkModeStatus}
+																	className={classNames(
+																		'text-nowrap',
+																		{
+																			'border-light':
+																				!darkModeStatus,
+																		},
+																		'mx-3',
+																	)}
+																	icon='Edit'
+																	onClick={() =>
+																		handleEditLahan(item.uuid)
+																	}>
+																	Edit
+																</Button>
 
-															<Button
-																isOutline={!darkModeStatus}
-																color='danger'
-																isLight={darkModeStatus}
-																className={classNames('text-nowrap', {
-																	'border-light': !darkModeStatus,
-																})}
-																icon='Delete'
-																onClick={handleModalHapus}>
-																Hapus
-															</Button>
-														</div>
-													</td>
-												</tr>
-											))}
+																<Button
+																	isOutline={!darkModeStatus}
+																	color='danger'
+																	isLight={darkModeStatus}
+																	className={classNames(
+																		'text-nowrap',
+																		{
+																			'border-light':
+																				!darkModeStatus,
+																		},
+																	)}
+																	icon='Delete'
+																	onClick={handleModalHapus}>
+																	Hapus
+																</Button>
+															</div>
+														</td>
+													</tr>
+												),
+											)}
 										</>
-
 									) : (
-										<td colSpan={9} >
-											<h6 className='text-center text-nowrap mt-2'>Tidak ada data</h6>
+										<td colSpan={9}>
+											<h6 className='text-center text-nowrap mt-2'>
+												Tidak ada data
+											</h6>
 										</td>
-									)
-									}
+									)}
 								</tbody>
 							</table>
 						</CardBody>
@@ -339,13 +367,11 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 							setPerPage={setPerPage}
 						/>
 					</>
-
-				)
-					: (
-						<div className="m-5 text-center">
-							<Spinner size={50} color='primary' />
-						</div>
-					)}
+				) : (
+					<div className='m-5 text-center'>
+						<Spinner size={50} color='primary' />
+					</div>
+				)}
 			</Card>
 
 			{/* Modal Add Lahan */}
@@ -384,9 +410,7 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 												isTouched={formikAdd.touched.land_name}
 												onChange={formikAdd.handleChange}
 												onBlur={formikAdd.handleBlur}
-												invalidFeedback={
-													formikAdd.errors.land_name
-												}
+												invalidFeedback={formikAdd.errors.land_name}
 											/>
 										</FormGroup>
 									</div>
@@ -395,7 +419,6 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 											id='exampleTypesPlaceholder--$'
 											label='Nama Pemilik Tanah'
 											labelClassName='text-capitalize'>
-
 											<Input
 												// size='md'
 												type='text'
@@ -406,9 +429,7 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 												isTouched={formikAdd.touched.land_owner}
 												onChange={formikAdd.handleChange}
 												onBlur={formikAdd.handleBlur}
-												invalidFeedback={
-													formikAdd.errors.land_owner
-												}
+												invalidFeedback={formikAdd.errors.land_owner}
 											/>
 										</FormGroup>
 									</div>
@@ -430,9 +451,7 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 												isTouched={formikAdd.touched.acquisition_date}
 												onChange={formikAdd.handleChange}
 												onBlur={formikAdd.handleBlur}
-												invalidFeedback={
-													formikAdd.errors.acquisition_date
-												}
+												invalidFeedback={formikAdd.errors.acquisition_date}
 											/>
 										</FormGroup>
 									</div>
@@ -447,18 +466,22 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 												placeholder='08XX-XXXX-XXXX'
 												name='land_owner_phone'
 												mask='089-9999-9999-99'
-
-												value={formikAdd.values.land_owner_phone.replace(/_/g, '').replace(/-/g, '')}
+												value={formikAdd.values.land_owner_phone
+													.replace(/_/g, '')
+													.replace(/-/g, '')}
 												isTouched={formikAdd.touched.land_owner_phone}
 												onChange={(e: any) => {
-													const value = e.target.value.replace(/_/g, '').replace(/-/g, '');
+													const value = e.target.value
+														.replace(/_/g, '')
+														.replace(/-/g, '');
 													console.log(value);
-													formikAdd.setFieldValue('land_owner_phone', value)
+													formikAdd.setFieldValue(
+														'land_owner_phone',
+														value,
+													);
 												}}
 												onBlur={formikAdd.handleBlur}
-												invalidFeedback={
-													formikAdd.errors.land_owner_phone
-												}
+												invalidFeedback={formikAdd.errors.land_owner_phone}
 											/>
 										</FormGroup>
 									</div>
@@ -473,7 +496,6 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 											<Input
 												// size='md'
 												type='number'
-
 												placeholder='Luas Area Tanah'
 												aria-label='.form-control-lg example'
 												name='area_size'
@@ -481,9 +503,7 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 												isTouched={formikAdd.touched.area_size}
 												onChange={formikAdd.handleChange}
 												onBlur={formikAdd.handleBlur}
-												invalidFeedback={
-													formikAdd.errors.area_size
-												}
+												invalidFeedback={formikAdd.errors.area_size}
 											/>
 										</FormGroup>
 									</div>
@@ -501,28 +521,25 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 												isTouched={formikAdd.touched.price_per_m2}
 												onChange={formikAdd.handleChange}
 												onBlur={formikAdd.handleBlur}
-												invalidFeedback={
-													formikAdd.errors.price_per_m2
-												}
+												invalidFeedback={formikAdd.errors.price_per_m2}
 											/>
 										</FormGroup>
 									</div>
 								</div>
 
 								<div className='row g-4 mt-2 mx-auto'>
-									<div className="col-md-6">
+									<div className='col-md-6'>
 										<FormGroup id='exampleSizeTextarea' label='Catatan'>
-											<Textarea name='note'
+											<Textarea
+												name='note'
 												value={formikAdd.values.note}
 												isTouched={formikAdd.touched.note}
 												onChange={formikAdd.handleChange}
 												onBlur={formikAdd.handleBlur}
-												invalidFeedback={
-													formikAdd.errors.note
-												}
-												placeholder='Catatan mengenai lahan' />
+												invalidFeedback={formikAdd.errors.note}
+												placeholder='Catatan mengenai lahan'
+											/>
 										</FormGroup>
-
 									</div>
 								</div>
 							</div>
@@ -599,9 +616,7 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 												isTouched={formikAdd.touched.land_name}
 												onChange={formikAdd.handleChange}
 												onBlur={formikAdd.handleBlur}
-												invalidFeedback={
-													formikAdd.errors.land_name
-												}
+												invalidFeedback={formikAdd.errors.land_name}
 											/>
 										</FormGroup>
 									</div>
@@ -610,7 +625,6 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 											id='exampleTypesPlaceholder--$'
 											label='Nama Pemilik Tanah'
 											labelClassName='text-capitalize'>
-
 											<Input
 												// size='md'
 												type='text'
@@ -621,9 +635,7 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 												isTouched={formikAdd.touched.land_owner}
 												onChange={formikAdd.handleChange}
 												onBlur={formikAdd.handleBlur}
-												invalidFeedback={
-													formikAdd.errors.land_owner
-												}
+												invalidFeedback={formikAdd.errors.land_owner}
 											/>
 										</FormGroup>
 									</div>
@@ -645,9 +657,7 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 												isTouched={formikAdd.touched.acquisition_date}
 												onChange={formikAdd.handleChange}
 												onBlur={formikAdd.handleBlur}
-												invalidFeedback={
-													formikAdd.errors.acquisition_date
-												}
+												invalidFeedback={formikAdd.errors.acquisition_date}
 											/>
 										</FormGroup>
 									</div>
@@ -662,18 +672,22 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 												placeholder='08XX-XXXX-XXXX'
 												name='land_owner_phone'
 												mask='089-9999-9999-99'
-
-												value={formikAdd.values.land_owner_phone.replace(/_/g, '').replace(/-/g, '')}
+												value={formikAdd.values.land_owner_phone
+													.replace(/_/g, '')
+													.replace(/-/g, '')}
 												isTouched={formikAdd.touched.land_owner_phone}
 												onChange={(e: any) => {
-													const value = e.target.value.replace(/_/g, '').replace(/-/g, '');
+													const value = e.target.value
+														.replace(/_/g, '')
+														.replace(/-/g, '');
 													console.log(value);
-													formikAdd.setFieldValue('land_owner_phone', value)
+													formikAdd.setFieldValue(
+														'land_owner_phone',
+														value,
+													);
 												}}
 												onBlur={formikAdd.handleBlur}
-												invalidFeedback={
-													formikAdd.errors.land_owner_phone
-												}
+												invalidFeedback={formikAdd.errors.land_owner_phone}
 											/>
 										</FormGroup>
 									</div>
@@ -695,9 +709,7 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 												isTouched={formikAdd.touched.area_size}
 												onChange={formikAdd.handleChange}
 												onBlur={formikAdd.handleBlur}
-												invalidFeedback={
-													formikAdd.errors.area_size
-												}
+												invalidFeedback={formikAdd.errors.area_size}
 											/>
 										</FormGroup>
 									</div>
@@ -715,28 +727,25 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 												isTouched={formikAdd.touched.price_per_m2}
 												onChange={formikAdd.handleChange}
 												onBlur={formikAdd.handleBlur}
-												invalidFeedback={
-													formikAdd.errors.price_per_m2
-												}
+												invalidFeedback={formikAdd.errors.price_per_m2}
 											/>
 										</FormGroup>
 									</div>
 								</div>
 
 								<div className='row g-4 mt-2 mx-auto'>
-									<div className="col-md-6">
+									<div className='col-md-6'>
 										<FormGroup id='exampleSizeTextarea' label='Catatan'>
-											<Textarea name='note'
+											<Textarea
+												name='note'
 												value={formikAdd.values.note}
 												isTouched={formikAdd.touched.note}
 												onChange={formikAdd.handleChange}
 												onBlur={formikAdd.handleBlur}
-												invalidFeedback={
-													formikAdd.errors.note
-												}
-												placeholder='Catatan mengenai lahan' />
+												invalidFeedback={formikAdd.errors.note}
+												placeholder='Catatan mengenai lahan'
+											/>
 										</FormGroup>
-
 									</div>
 								</div>
 							</div>
@@ -746,7 +755,10 @@ const CommonLahan: FC<IDataLahanProps> = ({ isFluid }) => {
 								color='info'
 								isOutline
 								className='border-0'
-								onClick={() => setEditModalLahan(false)}>
+								onClick={() => {
+									setEditModalLahan(false);
+									setGetId('');
+								}}>
 								Close
 							</Button>
 							<Button type='submit' color='info' icon='Save'>
