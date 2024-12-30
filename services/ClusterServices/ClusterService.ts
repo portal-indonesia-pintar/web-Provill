@@ -69,14 +69,11 @@ export const ClusterStore = async (formData: ClusterProps) => {
 
 }
 
-
 // detail Cluster
 export const ClusterShow = async (uuid : string) => {
-    console.log(`/cluster/${uuid}`);
     try {
         const response = await axiosBase.get(`/cluster/${uuid}`)
-		console.log(response);
-        return response.data
+        return response
     } catch (error : any) {
         if (error.response) {
 			console.log('Error Response:', error.response.data);
