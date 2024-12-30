@@ -61,7 +61,7 @@ const AlertProses = ({ status }: IAlertProsesProps) => {
 	const alertOptions: any = {
 		icon: 'success',
 		title: `Berhasil ${status}`,
-		message: `Data lahan telah di ${status === 'add' ? 'Tambah' : status === 'update' ? 'Update' : status === 'hapus' ? 'Hapus' : ''}`,
+		message: `Data unit telah di ${status === 'add' ? 'Tambah' : status === 'update' ? 'Update' : status === 'hapus' ? 'Hapus' : ''}`,
 	};
 
 	withReactContent(Swal).fire({
@@ -429,7 +429,10 @@ const CommonRabUnit: FC<IDataLahanProps> = ({ isFluid }) => {
 						color='info'
 						isOutline
 						className='border-0'
-						onClick={() => setModalHapusRab(false)}>
+						onClick={() => {
+                            setModalHapusRab(false)
+                            setGetId('')
+                            }}>
 						Close
 					</Button>
 					<Button onClick={() => handleDeleteUnit(getId)} color='danger' icon='Delete'>

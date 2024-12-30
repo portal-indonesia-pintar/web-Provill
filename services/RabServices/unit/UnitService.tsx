@@ -47,7 +47,6 @@ export const UnitUpdate = async (formData: UnitProps, id: string) => {
 };
 
 export const UnitDelete = async (uuid: string) => {
-	console.log(uuid);
 	try {
 		const response = await axiosBase.delete(`/rab-unit/${uuid}`);
 		return response;
