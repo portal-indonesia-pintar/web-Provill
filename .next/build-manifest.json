@@ -22,15 +22,10 @@
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/admin/cluster": [
+    "/admin/rab/rab-unit": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/admin/cluster.js"
-    ],
-    "/admin/lahan": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/admin/lahan.js"
+      "static/chunks/pages/admin/rab/rab-unit.js"
     ]
   },
   "ampFirstPages": []

@@ -2,7 +2,6 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/": "pages/index.js",
-  "/admin/lahan": "pages/admin/lahan.js",
-  "/admin/cluster": "pages/admin/cluster.js"
+  "/admin/rab/rab-unit": "pages/admin/rab/rab-unit.js",
+  "/admin/rab/rab-item": "pages/admin/rab/rab-item.js"
 }
