@@ -38,7 +38,7 @@ export const GetItem = async () => {
 export const GetUnit = async () => {
     try {
         const response = await axiosBase.get('/rab-unit')
-		return response.data
+		return response
     } catch (error : any) {
         if (error.response) {
 			console.log('Error Response:', error.response.data);

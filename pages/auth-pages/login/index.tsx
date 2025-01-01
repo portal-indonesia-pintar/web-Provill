@@ -108,7 +108,6 @@ const Login: NextPage<ILoginProps> = ({ isSignUp }) => {
 
 	// get Token
 	const { token, setToken } = GetTokenLogin();
-	console.log('token : ', token);
 
 	const handleRegister = (e: any) => {
 		e.preventDefault();

@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
 import { FormikHelpers, useFormik } from 'formik';
@@ -33,6 +33,7 @@ import useDarkMode from '../../hooks/useDarkMode';
 import Select from '@call-components/bootstrap/forms/Select';
 import InputGroup, { InputGroupText } from '@call-components/bootstrap/forms/InputGroup';
 import CommonItem from '@call-common/partial/item/CommonItem';
+import { RabGet } from '@call-root-lib/services/RabServices/RabService';
 
 interface IDataLahanProps {
 	isFluid?: boolean;
@@ -52,18 +53,7 @@ const CommonRab: FC<IDataLahanProps> = ({ isFluid }) => {
 		{ value: 'Cluster Contoh 3', text: 'Cluster Contoh 3' },
 	];
 
-	const [headerCloseStatus, setHeaderCloseStatus] = useState(true);
-	const [state, setState] = useState(false);
-	const [showTipeBayar, setShowTipeBayar] = useState(false);
-
-	// state value form
-	const [catatTipe, setCatatTipe] = useState('');
-
-	// handle option catatan
-	const handleCatatOption = () => { };
-
-	// BEGIN :: Upcoming Events
-	const [upcomingEventsInfoOffcanvas, setUpcomingEventsInfoOffcanvas] = useState(false);
+	
 
 	const [upcomingEventsEditOffcanvas, setUpcomingEventsEditOffcanvas] = useState(false);
 	const handleUpcomingEdit = () => {
@@ -103,9 +93,36 @@ const CommonRab: FC<IDataLahanProps> = ({ isFluid }) => {
 		},
 	});
 
+	// get data
+	const [dataIsExist, setDataIsExist] = useState<boolean>(false);
+	const [getRab, setGetRab] = useState<any>([]);
+	const getData = async () => {
+		try {
+			const res = await RabGet();
+			if (res.status == '404') {
+				setDataIsExist(false);
+				return;
+			}
+			setGetRab(res);
+			setDataIsExist(true);
+			return;
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
+	const [formItem, setFormItem] = useState<any[]>([])
+	const handleChangeItem = (id: string, field: string, value: any) => {
+		
+	}
+
+	useEffect(() => {
+		getData();
+	}, []);
+
 	const [currentPage, setCurrentPage] = useState(1);
 	const [perPage, setPerPage] = useState(PER_COUNT['5']);
-	const { items, requestSort, getClassNamesFor } = useSortableData(data);
+	const { items, requestSort, getClassNamesFor } = useSortableData(getRab);
 
 	return (
 		<>
@@ -150,19 +167,21 @@ const CommonRab: FC<IDataLahanProps> = ({ isFluid }) => {
 							</tr>
 						</thead>
 						<tbody>
-							{dataPagination(items, currentPage, perPage).map((item) => (
-								<tr key={item.id}>
-									<td>{item.id}</td>
-									<td>
-										<div className='d-flex'>
-											<div className='flex-grow-1 ms-3 d-flex align-items-center text-nowrap'>
-												RAB 01 Lorem ipsum dolor sit amet consectetur
-											</div>
-										</div>
-									</td>
-									<td>
-										<div className='d-flex align-items-center'>
-											{/* <span
+							{dataIsExist ? (
+								<>
+									{dataPagination(items, currentPage, perPage).map((item) => (
+										<tr key={item.id}>
+											<td>{item.id}</td>
+											<td>
+												<div className='d-flex'>
+													<div className='flex-grow-1 ms-3 d-flex align-items-center text-nowrap'>
+														{item.name}
+													</div>
+												</div>
+											</td>
+											<td>
+												<div className='d-flex align-items-center'>
+													{/* <span
 												className={classNames(
 													'badge',
 													'border border-2',
@@ -175,67 +194,71 @@ const CommonRab: FC<IDataLahanProps> = ({ isFluid }) => {
 													{item.status.name}
 												</span>
 											</span> */}
-											<span className='text-nowrap'>
-												{/* {dayjs(`${item.date} ${item.time}`).format(
+													<span className='text-nowrap'>
+														{/* {dayjs(`${item.date} ${item.time}`).format(
 													'D-MMMM-YYYY',
 												)} */}
-											</span>
-										</div>
-									</td>
+													</span>
+												</div>
+											</td>
 
+											<td>
+												<div className='d-flex flew-row'>
+													<Button
+														isOutline={!darkModeStatus}
+														color='dark'
+														isLight={darkModeStatus}
+														className={classNames(
+															'text-nowrap',
+															{
+																'border-light': !darkModeStatus,
+															},
+															'mx-3',
+														)}
+														icon='Info'
+														onClick={handleEditRab}>
+														Detail
+													</Button>
 
-									<td>
+													<Button
+														isOutline={!darkModeStatus}
+														color='dark'
+														isLight={darkModeStatus}
+														className={classNames(
+															'text-nowrap',
+															{
+																'border-light': !darkModeStatus,
+															},
+															'mx-3',
+														)}
+														icon='Edit'
+														onClick={handleEditRab}>
+														Edit
+													</Button>
 
-
-										<div className='d-flex flew-row'>
-
-											<Button
-												isOutline={!darkModeStatus}
-												color='dark'
-												isLight={darkModeStatus}
-												className={classNames(
-													'text-nowrap',
-													{
-														'border-light': !darkModeStatus,
-													},
-													'mx-3',
-												)}
-												icon='Info'
-												onClick={handleEditRab}>
-												Detail
-											</Button>
-
-											<Button
-												isOutline={!darkModeStatus}
-												color='dark'
-												isLight={darkModeStatus}
-												className={classNames(
-													'text-nowrap',
-													{
-														'border-light': !darkModeStatus,
-													},
-													'mx-3',
-												)}
-												icon='Edit'
-												onClick={handleEditRab}>
-												Edit
-											</Button>
-
-											<Button
-												isOutline={!darkModeStatus}
-												color='danger'
-												isLight={darkModeStatus}
-												className={classNames('text-nowrap', {
-													'border-light': !darkModeStatus,
-												})}
-												icon='Delete'
-												onClick={handleModalHapus}>
-												Hapus
-											</Button>
-										</div>
+													<Button
+														isOutline={!darkModeStatus}
+														color='danger'
+														isLight={darkModeStatus}
+														className={classNames('text-nowrap', {
+															'border-light': !darkModeStatus,
+														})}
+														icon='Delete'
+														onClick={handleModalHapus}>
+														Hapus
+													</Button>
+												</div>
+											</td>
+										</tr>
+									))}
+								</>
+							) : (
+								<tr>
+									<td className='text-center' colSpan={4}>
+										Data tidak ada
 									</td>
 								</tr>
-							))}
+							)}
 						</tbody>
 					</table>
 				</CardBody>
@@ -272,106 +295,15 @@ const CommonRab: FC<IDataLahanProps> = ({ isFluid }) => {
 							<div className='col-lg-6'>
 								<FormGroup
 									id='exampleTypesPlaceholder--$'
-									label='Judul'
+									label='Nama RAB'
 									labelClassName='text-capitalize'>
 									<Input
-										// size='md'
+										size='lg'
 										type='text'
-										placeholder=''
+										placeholder='Masukkan nama RAB/RAP'
 										aria-label='.form-control-lg example'
 									/>
 								</FormGroup>
-
-								<div className='row g-4 mt-2'>
-									<FormGroup
-										id='exampleTypesPlaceholder--$'
-										label='Perumahan / CLuster'
-										labelClassName='text-capitalize'>
-										<Select
-											// size='md'
-											ariaLabel='Default select example'
-											placeholder='-- Pilih Perumahan / Cluster --'
-											// onChange={formikOneWay.handleChange}
-											// value={formikOneWay.values.exampleSelectOneWay}
-											list={SELECT_OPTIONS_CLUSTER}
-										/>
-									</FormGroup>
-								</div>
-
-								<div className='row g-4 mt-2'>
-									<FormGroup
-										id='exampleTypesPlaceholder--'
-										label='Persentase Kenaikan Qty RAP ke RAB'
-										labelClassName='text-capitalize'>
-										<InputGroup>
-											{/* <InputGroupText>$</InputGroupText> */}
-											<Input
-												id='examplePrice'
-												// ariaLabel='Amount (to the nearest dollar)'
-												component='NumberFormat'
-												placeholder='Format persen'
-												// @ts-ignore
-												thousandSeparator
-												onChange={formik.handleChange}
-											// value={formik.values.examplePrice}
-											/>
-											<InputGroupText>%</InputGroupText>
-										</InputGroup>
-										{/* <InputGroup /> */}
-									</FormGroup>
-								</div>
-
-								{/* <div className='row g-4 mt-2'>
-									<FormGroup id='exampleSizeTextarea' label='Catatan'>
-										<Textarea placeholder='Catatan mengenai lahan' />
-									</FormGroup>
-								</div> */}
-							</div>
-							<div className='col-lg-6'>
-								<div className='row g-4'>
-									<FormGroup
-										id='exampleTypesPlaceholder--$'
-										label='Type Model '
-										labelClassName='text-capitalize'>
-										<Select
-											// size='md'
-											ariaLabel='Default select example'
-											placeholder='-- Pilih Type --'
-											// onChange={formikOneWay.handleChange}
-											// value={formikOneWay.values.exampleSelectOneWay}
-											list={SELECT_TYPE_MODEL}
-										/>
-									</FormGroup>
-								</div>
-								<div className='row g-4 mt-2'>
-									{/* <TipeBayar /> */}
-									<FormGroup
-										id='exampleTypesPlaceholder--'
-										label='Total RAP'
-										labelClassName='text-capitalize'>
-										<Input
-											// size='md'
-											readOnly
-											type='number'
-											placeholder='0'
-											aria-label='.form-control-lg example'
-										/>
-									</FormGroup>
-								</div>
-								<div className='row g-4 mt-2'>
-									<FormGroup
-										id='exampleTypesPlaceholder--'
-										label='Total RAB'
-										labelClassName='text-capitalize'>
-										<Input
-											// size='md'
-											readOnly
-											type='number'
-											placeholder='0'
-											aria-label='.form-control-lg example'
-										/>
-									</FormGroup>
-								</div>
 							</div>
 						</div>
 
@@ -385,21 +317,20 @@ const CommonRab: FC<IDataLahanProps> = ({ isFluid }) => {
 						<div className='row'>
 							<CommonItem />
 						</div>
+						<ModalFooter>
+							<Button
+								color='info'
+								isOutline
+								className='border-0'
+								onClick={() => setRabModal(false)}>
+								Close
+							</Button>
+							<Button color='info' icon='Save'>
+								Simpan
+							</Button>
+						</ModalFooter>
 					</form>
 				</ModalBody>
-
-				<ModalFooter>
-					<Button
-						color='info'
-						isOutline
-						className='border-0'
-						onClick={() => setRabModal(false)}>
-						Close
-					</Button>
-					<Button color='info' icon='Save'>
-						Simpan
-					</Button>
-				</ModalFooter>
 			</Modal>
 
 			{/* Modal Edit RAB */}
@@ -466,7 +397,7 @@ const CommonRab: FC<IDataLahanProps> = ({ isFluid }) => {
 												// @ts-ignore
 												thousandSeparator
 												onChange={formik.handleChange}
-											// value={formik.values.examplePrice}
+												// value={formik.values.examplePrice}
 											/>
 											<InputGroupText>%</InputGroupText>
 										</InputGroup>

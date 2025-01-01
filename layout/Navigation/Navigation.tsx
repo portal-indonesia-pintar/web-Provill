@@ -128,7 +128,6 @@ export const Item: FC<IItemProps> = ({
 
 	// For aside menu
 	const here = typeof to === 'string' && to !== '/' && router.pathname.includes(to);
-	console.log('path pas klik : ', here);
 	// For top menu
 	const match = to !== '/' && router.pathname === to;
 

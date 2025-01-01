@@ -124,7 +124,6 @@ const User = () => {
 									}).then( () => {
 										Cookies.remove('token')
 										clearToken();
-										console.log(isLogout);
 									})
 									router.push(`/${demoPagesMenu.login.path}`);
 								}

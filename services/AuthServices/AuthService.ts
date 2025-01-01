@@ -40,7 +40,6 @@ export const LoginAuth = async (formData: form) => {
 		email: formData.loginUsername,
 		password: formData.loginPassword,
 	}
-	console.log(fields);
 	try {
 		const response = await axiosBase.post('/auth/login', fields)
 		return response
@@ -57,9 +56,9 @@ export const LoginAuth = async (formData: form) => {
 };
 
 export const LogoutUser = async (data: string | null) => {
-	console.log('logout : ', data);
 	try {
 		const response = await axiosBase.get(`/auth/logout?session_id=${data}`)
+		localStorage.removeItem('token')
 		return response
 	} catch (error: any) {
 		if (error.response) {

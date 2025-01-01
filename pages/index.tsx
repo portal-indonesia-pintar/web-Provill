@@ -58,7 +58,6 @@ const Index: NextPage = () => {
 
 	// get Token
 	const { token, loadToken } = GetTokenLogin();
-	console.log(token);
 	useEffect(() => {
 		loadToken();
 	}, [loadToken])
