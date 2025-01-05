@@ -40,27 +40,19 @@ interface formItem {
 	value: string;
 }
 
-const CommonItem: NextPage = () => {
-	const data = [
-		{ id: 1, firstName: 'John', lastName: 'Doe' },
-		{ id: 2, firstName: 'Ella', lastName: 'Oliver' },
-		{ id: 3, firstName: 'Sam', lastName: 'Roberts' },
-		{ id: 4, firstName: 'Grace', lastName: 'Buckland' },
-		{ id: 5, firstName: 'Jane', lastName: 'Lee' },
-		{ id: 6, firstName: 'Chloe', lastName: 'Walker' },
-		{ id: 7, firstName: 'Ryan', lastName: 'McGrath' },
-	];
+interface CommonItemProps {
+	formItem: any[];
+	handleItemChange: (id: string, field: string, value: any) => void;
+	hapusItem: (id: string) => void;
+	tambahItem: () => void;
+}
 
-	// tambah item
-	const [formItem, setFormItem] = useState<formItem[]>([{ id: 1, value: '' }]);
-	const tambahItem = () => {
-		setFormItem((prevForm) => [...prevForm, { id: prevForm.length + 1, value: '' }]);
-	};
-
-	const hapusItem = (id: number) => {
-		setFormItem((prevForm) => prevForm.filter((form) => form.id != id));
-	};
-
+const CommonItem: NextPage<CommonItemProps> = ({
+	formItem,
+	handleItemChange,
+	hapusItem,
+	tambahItem,
+}) => {
 	const formikCreate = useFormik({
 		enableReinitialize: true,
 		initialValues: {
@@ -201,19 +193,16 @@ const CommonItem: NextPage = () => {
 										Item
 									</th>
 									<th
-										style={{ width: '150px' }}
+										style={{ width: '130px' }}
 										scope='col'
 										className='text-decoration-underline'>
 										Unit
 									</th>
 									<th scope='col' className=''>
-										Qty RAP
+										Jumlah
 									</th>
 									<th scope='col' className=''>
 										(%) Naik
-									</th>
-									<th scope='col' className=''>
-										Qty RAB
 									</th>
 									<th style={{ width: '150px' }} scope='col' className=''>
 										Harga
@@ -232,17 +221,22 @@ const CommonItem: NextPage = () => {
 								</tr>
 							</thead>
 							<tbody>
-								{formItem.map((form) => (
+								{formItem.map((form, index) => (
 									<tr key={form.id}>
-										<td>{form.id}</td>
+										<td>{++index}</td>
 										<td>
 											<Select
 												// size='md'
 												ariaLabel='Default select example'
 												placeholder='-- Item --'
-												// onChange={formikOneWay.handleChange}
-												// value={formikOneWay.values.exampleSelectOneWay}
-											>
+												onChange={(e: any) =>
+													handleItemChange(
+														form.id,
+														'rab_item_id',
+														e.target.value,
+													)
+												}
+												value={form.rab_item_id || ''}>
 												{getItem.map((i: any) => (
 													<Option key={i.value} value={i.value}>
 														{i.text}
@@ -254,10 +248,15 @@ const CommonItem: NextPage = () => {
 											<Select
 												// size='md'
 												ariaLabel='Default select example'
-												placeholder='-- Satuan --'
-												// onChange={formikOneWay.handleChange}
-												// value={formikOneWay.values.exampleSelectOneWay}
-											>
+												placeholder='-- Unit --'
+												onChange={(e: any) =>
+													handleItemChange(
+														form.id,
+														'rab_unit_id',
+														e.target.value,
+													)
+												}
+												value={form.rab_unit_id || ''}>
 												{getUnit.map((i: any) => (
 													<Option key={i.value} value={i.value}>
 														{i.text}
@@ -272,6 +271,14 @@ const CommonItem: NextPage = () => {
 												type='number'
 												placeholder='0'
 												aria-label='.form-control-sm example'
+												value={form.quantity || ''}
+												onChange={(e: any) =>
+													handleItemChange(
+														form.id,
+														'quantity',
+														e.target.value,
+													)
+												}
 											/>
 										</td>
 										<td>
@@ -280,6 +287,14 @@ const CommonItem: NextPage = () => {
 												type='number'
 												placeholder='0'
 												aria-label='.form-control-sm example'
+												value={form.increase_percentage || ''}
+												onChange={(e: any) =>
+													handleItemChange(
+														form.id,
+														'increase_percentage',
+														e.target.value,
+													)
+												}
 											/>
 										</td>
 										<td>
@@ -288,15 +303,14 @@ const CommonItem: NextPage = () => {
 												type='number'
 												placeholder='0'
 												aria-label='.form-control-sm example'
-											/>
-										</td>
-										<td>
-											<Input
-												// size='md'
-												readOnly
-												type='number'
-												placeholder='0'
-												aria-label='.form-control-sm example'
+												value={form.price || ''}
+												onChange={(e: any) =>
+													handleItemChange(
+														form.id,
+														'price',
+														e.target.value,
+													)
+												}
 											/>
 										</td>
 										<td>

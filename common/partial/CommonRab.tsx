@@ -11,12 +11,6 @@ import Card, {
 } from '../../components/bootstrap/Card';
 import Button from '../../components/bootstrap/Button';
 import { priceFormat } from '../../helpers/helpers';
-import Icon from '../../components/icon/Icon';
-import OffCanvas, {
-	OffCanvasBody,
-	OffCanvasHeader,
-	OffCanvasTitle,
-} from '../../components/bootstrap/OffCanvas';
 import Modal, {
 	ModalBody,
 	ModalFooter,
@@ -25,40 +19,61 @@ import Modal, {
 } from '@call-components/bootstrap/Modal';
 import FormGroup from '../../components/bootstrap/forms/FormGroup';
 import Input from '../../components/bootstrap/forms/Input';
-import data from '../data/dummyEventsData';
 import USERS from '../data/userDummyData';
 import PaginationButtons, { dataPagination, PER_COUNT } from '../../components/PaginationButtons';
 import useSortableData from '../../hooks/useSortableData';
 import useDarkMode from '../../hooks/useDarkMode';
-import Select from '@call-components/bootstrap/forms/Select';
-import InputGroup, { InputGroupText } from '@call-components/bootstrap/forms/InputGroup';
 import CommonItem from '@call-common/partial/item/CommonItem';
 import { RabGet } from '@call-root-lib/services/RabServices/RabService';
+import { v4 as uuidv4 } from 'uuid';
 
 interface IDataLahanProps {
 	isFluid?: boolean;
 }
+
+interface formItem {
+	id: string;
+	rab_item_id: string;
+	rab_unit_id: string;
+	quantity: number;
+	price: number;
+	increase_percentage: number;
+	total_price_rab: number;
+	total_price_rap: number;
+}
+
 const CommonRab: FC<IDataLahanProps> = ({ isFluid }) => {
-	const { themeStatus, darkModeStatus } = useDarkMode();
+	const { darkModeStatus } = useDarkMode();
 
-	const SELECT_TYPE_MODEL = [
-		{ value: 1, text: 'Kapling' },
-		{ value: 2, text: 'Fasum' },
-		{ value: 3, text: 'Fasos' },
-	];
+	// tambah item
+	const [formItem, setFormItem] = useState<formItem[]>([]);
+	const tambahItem = () => {
+		const newItem = {
+			id: uuidv4(),
+			rab_item_id: '',
+			rab_unit_id: '',
+			quantity: 0,
+			price: 0,
+			increase_percentage: 0,
+			total_price_rab: 0,
+			total_price_rap: 0,
+		};
+		setFormItem((prevItems) => [...prevItems, newItem]);
+	};
 
-	const SELECT_OPTIONS_CLUSTER = [
-		{ value: 'Cluster Contoh 1', text: 'Cluster Contoh 1' },
-		{ value: 'Cluster Contoh 2', text: 'Cluster Contoh 2' },
-		{ value: 'Cluster Contoh 3', text: 'Cluster Contoh 3' },
-	];
+	const hapusItem = (id: string) => {
+		setFormItem(formItem.filter((item) => item.id !== id));
+	};
+
+	const handleItemChange = (id: string, field: string, value: any) => {
+		setFormItem((prevItems) =>
+			prevItems.map((item) => (item.id === id ? { ...item, [field]: value } : item)),
+		);
+	};
 
 	
 
 	const [upcomingEventsEditOffcanvas, setUpcomingEventsEditOffcanvas] = useState(false);
-	const handleUpcomingEdit = () => {
-		setUpcomingEventsEditOffcanvas(!upcomingEventsEditOffcanvas);
-	};
 
 	const [modalHapusRab, setModalHapusRab] = useState(false);
 	const handleModalHapus = () => {
@@ -74,24 +89,32 @@ const CommonRab: FC<IDataLahanProps> = ({ isFluid }) => {
 	// END :: Upcoming Events
 
 	const formik = useFormik({
+		enableReinitialize: true,
+		initialValues: {
+			name: '',
+		},
+		validate: (values) => {
+			const errors: {
+				name?: string;
+			} = {};
+
+			if (!values.name) errors.name = 'Required';
+
+			return errors;
+		},
+		validateOnChange: false,
 		onSubmit<Values>(
 			values: Values,
 			formikHelpers: FormikHelpers<Values>,
 		): void | Promise<any> {
 			return undefined;
 		},
-		initialValues: {
-			customerName: 'Alison Berry',
-			service: 'Exercise Bike',
-			employee: `${USERS.GRACE.name} ${USERS.GRACE.surname}`,
-			location: 'Maryland',
-			date: dayjs().add(1, 'days').format('YYYY-MM-DD'),
-			time: '10:30',
-			note: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer ut nisi odio. Nam sit amet pharetra enim. Nulla facilisi. Nunc dictum felis id massa mattis pretium. Mauris at blandit orci. Nunc vulputate vulputate turpis vitae cursus. In sit amet turpis tincidunt, interdum ex vitae, sollicitudin massa. Maecenas eget dui molestie, ullamcorper ante vel, tincidunt nisi. Donec vitae pulvinar risus. In ultricies nisl ac massa malesuada, vel tempus neque placerat.',
-			notify: true,
-			examplePrice: '',
-		},
 	});
+
+	const submitForm = (val: any) => {
+		val.preventDefault();
+		formik.handleSubmit(val);
+	};
 
 	// get data
 	const [dataIsExist, setDataIsExist] = useState<boolean>(false);
@@ -110,11 +133,6 @@ const CommonRab: FC<IDataLahanProps> = ({ isFluid }) => {
 			console.log(error);
 		}
 	};
-
-	const [formItem, setFormItem] = useState<any[]>([])
-	const handleChangeItem = (id: string, field: string, value: any) => {
-		
-	}
 
 	useEffect(() => {
 		getData();
@@ -290,7 +308,7 @@ const CommonRab: FC<IDataLahanProps> = ({ isFluid }) => {
 				</ModalHeader>
 				{/* Form */}
 				<ModalBody>
-					<form>
+					<form onSubmit={submitForm}>
 						<div className='row'>
 							<div className='col-lg-6'>
 								<FormGroup
@@ -302,6 +320,11 @@ const CommonRab: FC<IDataLahanProps> = ({ isFluid }) => {
 										type='text'
 										placeholder='Masukkan nama RAB/RAP'
 										aria-label='.form-control-lg example'
+										value={formik.values.name}
+										isTouched={formik.touched.name}
+										onChange={formik.handleChange}
+										onBlur={formik.handleBlur}
+										invalidFeedback={formik.errors.name}
 									/>
 								</FormGroup>
 							</div>
@@ -315,7 +338,12 @@ const CommonRab: FC<IDataLahanProps> = ({ isFluid }) => {
 						</div>
 
 						<div className='row'>
-							<CommonItem />
+							<CommonItem
+								formItem={formItem}
+								handleItemChange={handleItemChange}
+								hapusItem={hapusItem}
+								tambahItem={tambahItem}
+							/>
 						</div>
 						<ModalFooter>
 							<Button
@@ -325,7 +353,7 @@ const CommonRab: FC<IDataLahanProps> = ({ isFluid }) => {
 								onClick={() => setRabModal(false)}>
 								Close
 							</Button>
-							<Button color='info' icon='Save'>
+							<Button type='submit' color='info' icon='Save'>
 								Simpan
 							</Button>
 						</ModalFooter>
@@ -334,157 +362,6 @@ const CommonRab: FC<IDataLahanProps> = ({ isFluid }) => {
 			</Modal>
 
 			{/* Modal Edit RAB */}
-			<Modal
-				isOpen={editRabModal}
-				setIsOpen={setEditRabModal}
-				titleId='exampleModalLabel'
-				// isStaticBackdrop={staticBackdropStatus}
-				isScrollable={true}
-				isCentered={true}
-				size='xl'
-				fullScreen='xxl'
-				isAnimation={false}>
-				<ModalHeader>
-					<ModalTitle id='exampleModalLabel' tag='h2' className='m-3'>
-						Edit RAP & RAB
-					</ModalTitle>
-				</ModalHeader>
-				{/* Form */}
-				<ModalBody>
-					<form>
-						<div className='row'>
-							<div className='col-lg-6'>
-								<FormGroup
-									id='exampleTypesPlaceholder--$'
-									label='Judul'
-									labelClassName='text-capitalize'>
-									<Input
-										// size='md'
-										type='text'
-										placeholder=''
-										aria-label='.form-control-lg example'
-									/>
-								</FormGroup>
-
-								<div className='row g-4 mt-2'>
-									<FormGroup
-										id='exampleTypesPlaceholder--$'
-										label='Perumahan / CLuster'
-										labelClassName='text-capitalize'>
-										<Select
-											// size='md'
-											ariaLabel='Default select example'
-											placeholder='-- Pilih Perumahan / Cluster --'
-											// onChange={formikOneWay.handleChange}
-											// value={formikOneWay.values.exampleSelectOneWay}
-											list={SELECT_OPTIONS_CLUSTER}
-										/>
-									</FormGroup>
-								</div>
-
-								<div className='row g-4 mt-2'>
-									<FormGroup
-										id='exampleTypesPlaceholder--'
-										label='Persentase Kenaikan Qty RAP ke RAB'
-										labelClassName='text-capitalize'>
-										<InputGroup>
-											{/* <InputGroupText>$</InputGroupText> */}
-											<Input
-												id='examplePrice'
-												// ariaLabel='Amount (to the nearest dollar)'
-												component='NumberFormat'
-												placeholder='Format persen'
-												// @ts-ignore
-												thousandSeparator
-												onChange={formik.handleChange}
-												// value={formik.values.examplePrice}
-											/>
-											<InputGroupText>%</InputGroupText>
-										</InputGroup>
-										{/* <InputGroup /> */}
-									</FormGroup>
-								</div>
-
-								{/* <div className='row g-4 mt-2'>
-									<FormGroup id='exampleSizeTextarea' label='Catatan'>
-										<Textarea placeholder='Catatan mengenai lahan' />
-									</FormGroup>
-								</div> */}
-							</div>
-							<div className='col-lg-6'>
-								<div className='row g-4'>
-									<FormGroup
-										id='exampleTypesPlaceholder--$'
-										label='Type Model '
-										labelClassName='text-capitalize'>
-										<Select
-											// size='md'
-											ariaLabel='Default select example'
-											placeholder='-- Pilih Type --'
-											// onChange={formikOneWay.handleChange}
-											// value={formikOneWay.values.exampleSelectOneWay}
-											list={SELECT_TYPE_MODEL}
-										/>
-									</FormGroup>
-								</div>
-								<div className='row g-4 mt-2'>
-									{/* <TipeBayar /> */}
-									<FormGroup
-										id='exampleTypesPlaceholder--'
-										label='Total RAP'
-										labelClassName='text-capitalize'>
-										<Input
-											// size='md'
-											readOnly
-											type='number'
-											placeholder='0'
-											aria-label='.form-control-lg example'
-										/>
-									</FormGroup>
-								</div>
-								<div className='row g-4 mt-2'>
-									<FormGroup
-										id='exampleTypesPlaceholder--'
-										label='Total RAB'
-										labelClassName='text-capitalize'>
-										<Input
-											// size='md'
-											readOnly
-											type='number'
-											placeholder='0'
-											aria-label='.form-control-lg example'
-										/>
-									</FormGroup>
-								</div>
-							</div>
-						</div>
-
-						<div className='text-center '>
-							<ModalTitle id='exampleModalLabel' tag='h3' className=' mt-5'>
-								Item RAP & RAB
-							</ModalTitle>
-							Silahkan masukkan poin-poin RAP & RAB
-						</div>
-
-						<div className='row'>
-							<CommonItem />
-						</div>
-					</form>
-				</ModalBody>
-
-				<ModalFooter>
-					<Button
-						color='info'
-						isOutline
-						className='border-0'
-						onClick={() => setEditRabModal(false)}>
-						Close
-					</Button>
-					<Button color='info' icon='Save'>
-						Simpan
-					</Button>
-				</ModalFooter>
-			</Modal>
 
 			{/* Modal Hapus RAB */}
 			<Modal
